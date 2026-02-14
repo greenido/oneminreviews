@@ -17,6 +17,7 @@ import {
   cityPath,
   cuisinePath,
   generateFAQs,
+  hasYelpData,
   type Video,
   type Restaurant,
 } from '../../lib/data';
@@ -121,7 +122,7 @@ const jsonLd = [
       '@type': 'AggregateRating',
       ratingValue: restaurant.google?.rating ?? 0,
       reviewCount:
-        (restaurant.google?.reviewCount ?? 0) + (restaurant.yelp?.reviewCount ?? 0),
+        (restaurant.google?.reviewCount ?? 0) + (hasYelpData(restaurant) ? (restaurant.yelp?.reviewCount ?? 0) : 0),
       bestRating: 5,
       worstRating: 1,
     },
@@ -209,10 +210,10 @@ const jsonLd = [
                   source="google"
                 />
               )}
-              {restaurant.yelp && (
+              {hasYelpData(restaurant) && (
                 <StarRating
-                  rating={restaurant.yelp.rating}
-                  reviewCount={restaurant.yelp.reviewCount}
+                  rating={restaurant.yelp!.rating}
+                  reviewCount={restaurant.yelp!.reviewCount}
                   source="yelp"
                 />
               )}
@@ -229,7 +230,7 @@ const jsonLd = [
               </div>
             </div>
 
-            {restaurant.yelp?.url && (
+            {hasYelpData(restaurant) && restaurant.yelp?.url && (
               <a
                 href={restaurant.yelp.url}
                 target="_blank"
@@ -251,11 +252,13 @@ const jsonLd = [
       </section>
 
       <!-- Reviews -->
-      {restaurant.reviews.length > 0 && (
+      {restaurant.reviews.filter((r) => r.source !== 'yelp' || hasYelpData(restaurant)).length > 0 && (
         <section class="video-page__reviews">
           <h2>What Customers Are Saying</h2>
           <div class="reviews-grid">
-            {restaurant.reviews.map((review) => (
+            {restaurant.reviews
+              .filter((r) => r.source !== 'yelp' || hasYelpData(restaurant))
+              .map((review) => (
               <ReviewSnippet
                 source={review.source}
                 author={review.author}

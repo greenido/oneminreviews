@@ -9,7 +9,12 @@ import {
   getCuisines,
   cityPath,
   cuisinePath,
+  ratingsSourceLabel,
+  siteHasYelpData,
 } from '../lib/data';
+
+const ratingsSources = ratingsSourceLabel();
+const hasYelp = siteHasYelpData();
 
 const restaurants = getRestaurants();
 const topRated = getTopRated(50);
@@ -17,7 +22,7 @@ const cities = getCities();
 const cuisines = getCuisines();
 
 const description =
-  'The highest rated restaurants reviewed by @oneminreviews, ranked by Google and Yelp ratings. Watch honest one-minute video reviews of the best food in America.';
+  `The highest rated restaurants reviewed by @oneminreviews, ranked by ${ratingsSources} ratings. Watch honest one-minute video reviews of the best food in America.`;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -39,8 +44,8 @@ const jsonLd = {
       <header class="section__header">
         <h1>Top Rated Restaurant Reviews</h1>
         <p class="section__subtitle">
-          The highest rated restaurants from our video reviews, ranked by aggregate Google
-          and Yelp ratings. Every review is one minute of honest, unsponsored opinion.
+          The highest rated restaurants from our video reviews, ranked by aggregate {ratingsSources}
+          ratings. Every review is one minute of honest, unsponsored opinion.
         </p>
       </header>
 
@@ -85,11 +90,10 @@ const jsonLd = {
       <div class="seo-block" style="margin-top: var(--space-3xl);">
         <h2>How We Rank Restaurants</h2>
         <p>
-          Our rankings combine real Google and Yelp ratings with the unfiltered video reviews
+          Our rankings combine real {ratingsSources} ratings with the unfiltered video reviews
           from @oneminreviews. We don't accept sponsored content or paid placements — every
           ranking is based on genuine customer feedback and our reviewer's honest assessment.
-          Restaurants are sorted by their Google aggregate rating, with Yelp data providing
-          additional context.
+          Restaurants are sorted by their Google aggregate rating{hasYelp ? ', with Yelp data providing additional context' : ''}.
         </p>
       </div>
     </div>

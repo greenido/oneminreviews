@@ -46,7 +46,7 @@ export interface Restaurant {
   lat: number;
   lng: number;
   google: RatingData;
-  yelp: RatingData;
+  yelp?: RatingData;
   reviews: ReviewEntry[];
   videoIds: string[];
 }
@@ -83,6 +83,24 @@ export function getVideosByCuisine(cuisine: string): Video[] {
   return getVideos().filter(
     (v) => v.cuisine.toLowerCase() === cuisine.toLowerCase()
   );
+}
+
+// ---------- Yelp Availability ----------
+
+/** Returns true if this restaurant has real Yelp data (rating > 0). */
+export function hasYelpData(restaurant: Restaurant): boolean {
+  return !!(restaurant.yelp && restaurant.yelp.rating > 0);
+}
+
+/** Returns true if ANY restaurant in the dataset has real Yelp data. */
+export function siteHasYelpData(): boolean {
+  const restaurants = getRestaurants();
+  return Object.values(restaurants).some((r) => hasYelpData(r));
+}
+
+/** Returns the ratings label string — "Google" or "Google and Yelp" depending on data. */
+export function ratingsSourceLabel(): string {
+  return siteHasYelpData() ? 'Google and Yelp' : 'Google';
 }
 
 // ---------- Aggregation ----------
@@ -160,16 +178,21 @@ export function generateFAQs(
   video: Video
 ): { question: string; answer: string }[] {
   const name = restaurant.name;
-  const avgRating =
-    ((restaurant.google?.rating ?? 0) + (restaurant.yelp?.rating ?? 0)) / 2;
+  const hasYelp = hasYelpData(restaurant);
+  const googleRating = restaurant.google?.rating ?? 0;
+  const googleCount = restaurant.google?.reviewCount ?? 0;
+  const yelpRating = hasYelp ? restaurant.yelp!.rating : 0;
+  const yelpCount = hasYelp ? restaurant.yelp!.reviewCount : 0;
+  const totalCount = googleCount + yelpCount;
+  const avgRating = hasYelp
+    ? (googleRating + yelpRating) / 2
+    : googleRating;
+  const sources = hasYelp ? 'Google and Yelp' : 'Google';
 
   return [
     {
       question: `Is ${name} worth it?`,
-      answer: `Based on ${
-        (restaurant.google?.reviewCount ?? 0) +
-        (restaurant.yelp?.reviewCount ?? 0)
-      } combined reviews across Google and Yelp, ${name} holds an average rating of ${avgRating.toFixed(
+      answer: `Based on ${totalCount} ${hasYelp ? 'combined reviews across ' : 'reviews on '}${sources}, ${name} holds an average rating of ${avgRating.toFixed(
         1
       )} out of 5. Our video review gives you an honest, unfiltered look at the experience.`,
     },
@@ -178,7 +201,9 @@ export function generateFAQs(
       answer:
         restaurant.reviews.length > 0
           ? `Recent reviews mention: "${restaurant.reviews[0].text}" — ${restaurant.reviews[0].author}`
-          : `${name} has strong ratings on both Google (${restaurant.google?.rating ?? 'N/A'}) and Yelp (${restaurant.yelp?.rating ?? 'N/A'}). Check our video for a first-hand look.`,
+          : hasYelp
+            ? `${name} has strong ratings on both Google (${googleRating}) and Yelp (${yelpRating}). Check our video for a first-hand look.`
+            : `${name} has a strong ${googleRating} rating on Google. Check our video for a first-hand look.`,
     },
     {
       question: `Where is ${name} located?`,
@@ -186,7 +211,9 @@ export function generateFAQs(
     },
     {
       question: `What is ${name}'s rating?`,
-      answer: `${name} has a ${restaurant.google?.rating ?? 'N/A'} rating on Google (${(restaurant.google?.reviewCount ?? 0).toLocaleString()} reviews) and a ${restaurant.yelp?.rating ?? 'N/A'} rating on Yelp (${(restaurant.yelp?.reviewCount ?? 0).toLocaleString()} reviews).`,
+      answer: hasYelp
+        ? `${name} has a ${googleRating} rating on Google (${googleCount.toLocaleString()} reviews) and a ${yelpRating} rating on Yelp (${yelpCount.toLocaleString()} reviews).`
+        : `${name} has a ${googleRating} rating on Google (${googleCount.toLocaleString()} reviews).`,
     },
     {
       question: `Is there a video review of ${name}?`,

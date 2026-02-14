@@ -104,20 +104,71 @@ All commands are run from the root of the project:
 | `npm run generate-sitemaps` | Generate XML sitemaps |
 | `npm run pipeline` | Run the full pipeline: scrape, process, enrich, build, sitemaps |
 
-## Deployment
+## Deploying to GitHub Pages
 
-The site is deployed to **GitHub Pages** via a GitHub Actions workflow that triggers on:
+The site is deployed to **GitHub Pages** via a GitHub Actions workflow. Follow these steps to set it up for your own fork or repo.
 
-- Pushes to `main`
-- Weekly schedule (Sundays at 6:00 UTC) to pick up new TikTok videos
-- Manual dispatch
+### 1. Enable GitHub Pages
 
-The workflow handles the full pipeline automatically -- scraping new videos, enriching data, generating images, building the site, and deploying.
+1. Go to your repository on GitHub.
+2. Navigate to **Settings > Pages**.
+3. Under **Build and deployment > Source**, select **GitHub Actions**.
 
-**Required secrets** for the full pipeline:
-- `GOOGLE_PLACES_KEY` -- Google Places API key for restaurant data
-- `YELP_API_KEY` -- Yelp Fusion API key for ratings and reviews
-- `PROXY_URL` (optional) -- Proxy for TikTok scraping
+### 2. Configure Repository Permissions
+
+The workflow needs write access to deploy artifacts and commit updated data back to the repo.
+
+1. Go to **Settings > Actions > General**.
+2. Under **Workflow permissions**, select **Read and write permissions**.
+3. Click **Save**.
+
+### 3. Add Repository Secrets
+
+The full pipeline (scrape, enrich, build, deploy) requires API keys stored as repository secrets.
+
+1. Go to **Settings > Secrets and variables > Actions**.
+2. Click **New repository secret** and add each of the following:
+
+| Secret | Required | Description |
+| :--- | :--- | :--- |
+| `GOOGLE_PLACES_KEY` | Yes | Google Places API key for restaurant data & reviews |
+| `YELP_API_KEY` | Yes | Yelp Fusion API key for ratings and reviews |
+| `PROXY_URL` | No | Proxy URL for TikTok scraping (helps avoid rate limits) |
+
+> **Note:** If you only need to build and deploy the site (without refreshing data), the secrets are not required -- the build step uses the existing `data/*.json` files checked into the repo.
+
+### 4. Trigger the Deployment
+
+The workflow (`.github/workflows/build-deploy.yml`) triggers automatically on:
+
+| Trigger | What Runs |
+| :--- | :--- |
+| **Push to `main`** | Build & deploy only (no scraping/enrichment) |
+| **Weekly schedule** (Sundays 6:00 UTC) | Full pipeline -- scrape, process media, enrich, generate OG images, build, deploy |
+| **Manual dispatch** | Choose which pipeline steps to run via the Actions UI |
+
+To trigger a deployment manually:
+
+1. Go to **Actions > Build & Deploy** in your repository.
+2. Click **Run workflow**.
+3. Optionally toggle `Run TikTok scraper`, `Run media processing`, or `Run restaurant enrichment` to `true`.
+4. Click **Run workflow** to start.
+
+### 5. Verify the Deployment
+
+Once the workflow completes:
+
+1. Go to **Settings > Pages** -- your site URL will be displayed at the top (e.g., `https://<username>.github.io/<repo>/`).
+2. If you're using a custom domain (like `oneminreviews.com`), configure it under **Settings > Pages > Custom domain** and add the appropriate DNS records.
+
+### How the Workflow Works
+
+The GitHub Actions workflow (`.github/workflows/build-deploy.yml`) runs in two jobs:
+
+1. **Build** -- Installs dependencies, optionally runs the data pipeline (scrape, enrich, process media, generate OG images), builds the Astro site to `./dist/`, generates sitemaps, and uploads the artifact.
+2. **Deploy** -- Deploys the uploaded artifact to GitHub Pages using `actions/deploy-pages@v4`.
+
+Data updates (new videos, enriched restaurant info, generated images) are automatically committed back to the repo so subsequent builds start from the latest data.
 
 ## Follow @oneminreviews
 

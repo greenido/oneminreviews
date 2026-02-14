@@ -9,8 +9,11 @@ import {
   cuisineSlug,
   cuisinePath,
   cityPath,
+  ratingsSourceLabel,
   type Video,
 } from '../../lib/data';
+
+const ratingsSources = ratingsSourceLabel();
 
 export function getStaticPaths() {
   const cuisines = getCuisines();
@@ -31,7 +34,7 @@ const restaurants = getRestaurants();
 // Get unique cities for this cuisine
 const cities = [...new Set(videos.map((v) => v.city))].sort();
 
-const description = `The best ${cuisineName.toLowerCase()} restaurants reviewed by @oneminreviews. Watch honest one-minute video reviews with Google and Yelp ratings.`;
+const description = `The best ${cuisineName.toLowerCase()} restaurants reviewed by @oneminreviews. Watch honest one-minute video reviews with ${ratingsSources} ratings.`;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -92,7 +95,7 @@ const jsonLd = {
           Looking for the best {cuisineName.toLowerCase()} restaurants? Our video reviews cover
           top-rated {cuisineName.toLowerCase()} spots across the US, each reviewed in an honest
           one-minute format by @oneminreviews. Every listing includes aggregate ratings from
-          Google and Yelp, customer review snippets, and location details.
+          {ratingsSources}, customer review snippets, and location details.
         </p>
       </div>
     </div>

@@ -28,7 +28,8 @@ const RESTAURANTS_PATH = resolve(DATA_DIR, 'restaurants.json');
 const OVERRIDES_PATH = resolve(DATA_DIR, 'overrides.json');
 
 const GOOGLE_PLACES_KEY = process.env.GOOGLE_PLACES_KEY || '';
-const YELP_API_KEY = process.env.YELP_API_KEY || '';
+const _rawYelpKey = process.env.YELP_API_KEY || '';
+const YELP_API_KEY = _rawYelpKey && _rawYelpKey !== 'N/A' ? _rawYelpKey : '';
 const DRY_RUN = process.argv.includes('--dry-run');
 const SKIP_API = process.argv.includes('--skip-api');
 

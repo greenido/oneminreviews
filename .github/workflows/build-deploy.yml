@@ -67,11 +67,11 @@ jobs:
             data-${{ runner.os }}-
 
       # ---- TikTok Scraper ----
-      - name: Install Chromium
+      - name: Install yt-dlp
         if: >
           github.event_name == 'schedule' ||
           (github.event_name == 'workflow_dispatch' && github.event.inputs.run_scraper == 'true')
-        run: npx puppeteer browsers install chrome
+        run: pip install --break-system-packages yt-dlp
 
       - name: Scrape TikTok
         if: >

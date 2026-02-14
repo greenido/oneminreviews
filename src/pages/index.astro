@@ -11,9 +11,12 @@ import {
   getCuisines,
   cityPath,
   cuisinePath,
+  ratingsSourceLabel,
   type Video,
   type Restaurant,
 } from '../lib/data';
+
+const ratingsSources = ratingsSourceLabel();
 
 const videos = getVideos();
 const restaurants = getRestaurants();
@@ -23,7 +26,7 @@ const cities = getCities();
 const cuisines = getCuisines();
 
 const description =
-  'Honest, one-minute restaurant reviews by @oneminreviews. Watch real food reviews with ratings from Google and Yelp. Discover the best restaurants in NYC, LA, Chicago, Austin and more.';
+  `Honest, one-minute restaurant reviews by @oneminreviews. Watch real food reviews with ratings from ${ratingsSources}. Discover the best restaurants in NYC, LA, Chicago, Austin and more.`;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -53,7 +56,7 @@ const jsonLd = {
       </h1>
       <p class="hero__subtitle">
         Real food. Real opinions. One minute each. We archive every review with ratings from
-        Google and Yelp so you can find the best restaurants near you — no algorithms, no
+        {ratingsSources} so you can find the best restaurants near you — no algorithms, no
         sponsored content, just the truth.
       </p>
       <div class="hero__stats">
@@ -165,7 +168,7 @@ const jsonLd = {
       <h2>About OneMinReviews</h2>
       <p>
         OneMinReviews is the definitive archive of <strong>@oneminreviews</strong> TikTok content.
-        Every video is enriched with real restaurant data from Google and Yelp, giving you
+        Every video is enriched with real restaurant data from {ratingsSources}, giving you
         ratings, review snippets, and location info — all in one place.
       </p>
       <p>

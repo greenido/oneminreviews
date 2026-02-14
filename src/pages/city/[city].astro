@@ -9,8 +9,11 @@ import {
   citySlug,
   cityPath,
   cuisinePath,
+  ratingsSourceLabel,
   type Video,
 } from '../../lib/data';
+
+const ratingsSources = ratingsSourceLabel();
 
 export function getStaticPaths() {
   const cities = getCities();
@@ -31,7 +34,7 @@ const restaurants = getRestaurants();
 // Get unique cuisines for this city
 const cuisines = [...new Set(videos.map((v) => v.cuisine))].sort();
 
-const description = `Discover the best restaurants in ${cityName} with honest one-minute video reviews by @oneminreviews. Ratings from Google and Yelp included.`;
+const description = `Discover the best restaurants in ${cityName} with honest one-minute video reviews by @oneminreviews. Ratings from ${ratingsSources} included.`;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -54,7 +57,7 @@ const jsonLd = {
         <h1>Restaurant Reviews in {cityName}</h1>
         <p class="section__subtitle">
           {videos.length} honest one-minute reviews of the best restaurants in {cityName}.
-          Watch real food reviews with ratings from Google and Yelp.
+          Watch real food reviews with ratings from {ratingsSources}.
         </p>
       </header>
 
@@ -93,7 +96,7 @@ const jsonLd = {
           Our {cityName} restaurant reviews feature honest, unsponsored video content from
           @oneminreviews on TikTok. Each review is exactly one minute — no filler, just real
           opinions about the food, the vibe, and whether it's worth your money. We enrich
-          every review with aggregate ratings from Google and Yelp so you get the full picture.
+          every review with aggregate ratings from {ratingsSources} so you get the full picture.
         </p>
       </div>
     </div>
