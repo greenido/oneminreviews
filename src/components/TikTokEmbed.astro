@@ -49,6 +49,9 @@ const iframeSrc = `https://www.tiktok.com/embed/v2/${videoId}`;
             const placeholder = wrapper.querySelector('.tiktok-embed__placeholder');
             if (!placeholder) return;
 
+            // Switch placeholder to active mode for proper iframe display
+            placeholder.classList.add('tiktok-embed__placeholder--active');
+
             // Replace placeholder with the iframe directly
             placeholder.innerHTML = `
               <div class="tiktok-embed__loading">
@@ -136,8 +139,8 @@ const iframeSrc = `https://www.tiktok.com/embed/v2/${videoId}`;
 
 <style>
   .tiktok-embed-wrapper {
-    max-width: 605px;
-    min-height: 400px;
+    max-width: 380px;
+    width: 100%;
   }
 
   .tiktok-embed__placeholder {
@@ -153,13 +156,30 @@ const iframeSrc = `https://www.tiktok.com/embed/v2/${videoId}`;
     overflow: hidden;
   }
 
+  /* Active state: when iframe is loaded, switch to proper layout */
+  .tiktok-embed__placeholder--active {
+    display: block;
+    overflow: visible;
+    min-height: auto;
+    aspect-ratio: 9 / 16.5;
+    border: none;
+    background: transparent;
+  }
+
   /* ---------- Iframe ---------- */
   .tiktok-embed__iframe {
     width: 100%;
-    min-height: 740px;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
     border: none;
     border-radius: var(--radius-md);
     transition: opacity 0.3s ease;
+  }
+
+  .tiktok-embed__placeholder--active {
+    position: relative;
   }
 
   /* ---------- Load button ---------- */
@@ -303,12 +323,6 @@ const iframeSrc = `https://www.tiktok.com/embed/v2/${videoId}`;
     .tiktok-embed__load-btn {
       padding: var(--space-md) var(--space-lg);
       font-size: 0.95rem;
-    }
-  }
-
-  @media (max-width: 600px) {
-    .tiktok-embed__iframe {
-      min-height: 580px;
     }
   }
 </style>

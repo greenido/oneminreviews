@@ -42,22 +42,20 @@ function formatNumber(n: number): string {
 ---
 
 <article class="card video-card">
-  <a href={href} aria-label={`Review of ${restaurantName}`}>
-    <div class="video-card__thumb">
-      <img
-        src={thumbnailUrl}
-        alt={`${restaurantName} food review thumbnail`}
-        class="card__image"
-        loading="lazy"
-        width="270"
-        height="480"
-        onerror="this.style.display='none'"
-      />
-      <div class="video-card__overlay">
-        <span class="video-card__play">&#9654;</span>
-      </div>
+  <div class="video-card__thumb" data-video-id={videoId} role="button" tabindex="0" aria-label={`Play review of ${restaurantName}`}>
+    <img
+      src={thumbnailUrl}
+      alt={`${restaurantName} food review thumbnail`}
+      class="card__image"
+      loading="lazy"
+      width="270"
+      height="480"
+      onerror="this.style.display='none'"
+    />
+    <div class="video-card__overlay">
+      <span class="video-card__play">&#9654;</span>
     </div>
-  </a>
+  </div>
   <div class="card__body">
     <a href={href} class="card__title-link">
       {rank && <span class="card__rank">#{rank}</span>}
@@ -83,10 +81,88 @@ function formatNumber(n: number): string {
   </div>
 </article>
 
+<script>
+  function initVideoCards() {
+    document.querySelectorAll('.video-card__thumb[data-video-id]').forEach((thumb) => {
+      if (thumb.hasAttribute('data-vc-init')) return;
+      thumb.setAttribute('data-vc-init', 'true');
+
+      const handlePlay = () => {
+        // Don't re-init if already playing
+        if (thumb.classList.contains('video-card__thumb--playing')) return;
+
+        const videoId = thumb.getAttribute('data-video-id');
+        if (!videoId) return;
+
+        const iframeSrc = `https://www.tiktok.com/embed/v2/${videoId}`;
+
+        // Save original content for restore
+        const originalHTML = thumb.innerHTML;
+
+        // Replace thumbnail with embed
+        thumb.innerHTML = `
+          <div class="video-card__embed-wrap">
+            <div class="video-card__embed-loading">
+              <div class="video-card__spinner"></div>
+            </div>
+            <iframe
+              src="${iframeSrc}"
+              class="video-card__embed-iframe"
+              allowfullscreen
+              allow="encrypted-media"
+              style="opacity: 0;"
+            ></iframe>
+            <button class="video-card__close-btn" aria-label="Close video">&times;</button>
+          </div>
+        `;
+        thumb.classList.add('video-card__thumb--playing');
+
+        const iframe = thumb.querySelector('iframe');
+        const loader = thumb.querySelector('.video-card__embed-loading');
+        const closeBtn = thumb.querySelector('.video-card__close-btn');
+
+        if (iframe) {
+          iframe.addEventListener('load', () => {
+            iframe.style.opacity = '1';
+            if (loader) loader.remove();
+          });
+        }
+
+        if (closeBtn) {
+          closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            thumb.innerHTML = originalHTML;
+            thumb.classList.remove('video-card__thumb--playing');
+          }, { once: true });
+        }
+      };
+
+      thumb.addEventListener('click', handlePlay);
+      thumb.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handlePlay();
+        }
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initVideoCards);
+  document.addEventListener('astro:page-load', initVideoCards);
+</script>
+
 <style>
   .video-card__thumb {
     position: relative;
     overflow: hidden;
+    cursor: pointer;
+  }
+
+  .video-card__thumb--playing {
+    aspect-ratio: 9 / 16;
+    min-height: 480px;
+    border-radius: var(--radius-md, 12px) var(--radius-md, 12px) 0 0;
+    overflow: visible;
   }
 
   .video-card__overlay {
@@ -110,6 +186,69 @@ function formatNumber(n: number): string {
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
   }
 
+  /* ---------- Inline embed ---------- */
+  .video-card__embed-wrap {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .video-card__embed-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: var(--radius-md, 12px) var(--radius-md, 12px) 0 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .video-card__embed-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-surface, #1a1a2e);
+    border-radius: var(--radius-md, 12px) var(--radius-md, 12px) 0 0;
+    z-index: 1;
+  }
+
+  .video-card__spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid var(--color-border, #333);
+    border-top-color: var(--color-accent, #ff3b5c);
+    border-radius: 50%;
+    animation: vc-spin 0.7s linear infinite;
+  }
+
+  @keyframes vc-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .video-card__close-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 10;
+    transition: background 0.2s ease;
+  }
+
+  .video-card__close-btn:hover {
+    background: rgba(0, 0, 0, 0.9);
+  }
+
+  /* ---------- Existing card styles ---------- */
   .card__title-link {
     display: flex;
     align-items: baseline;
@@ -148,6 +287,10 @@ function formatNumber(n: number): string {
 
     .video-card__stats {
       font-size: 0.72rem;
+    }
+
+    .video-card__thumb--playing {
+      min-height: 400px;
     }
   }
 </style>
