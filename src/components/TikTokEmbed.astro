@@ -74,6 +74,7 @@ const iframeSrc = `https://www.tiktok.com/embed/v2/${videoId}`;
             const showFallback = () => {
               if (settled) return;
               settled = true;
+              placeholder.classList.remove('tiktok-embed__placeholder--active');
               placeholder.innerHTML = `
                 <div class="tiktok-embed__fallback">
                   <span class="tiktok-embed__fallback-icon">&#127909;</span>
@@ -89,6 +90,7 @@ const iframeSrc = `https://www.tiktok.com/embed/v2/${videoId}`;
               if (retryBtn) {
                 retryBtn.addEventListener('click', () => {
                   wrapper.removeAttribute('data-init');
+                  placeholder.classList.remove('tiktok-embed__placeholder--active');
                   placeholder.innerHTML = `
                     <button class="tiktok-embed__load-btn" aria-label="Load TikTok video">
                       <span class="tiktok-embed__play">&#9654;</span>
@@ -159,6 +161,7 @@ const iframeSrc = `https://www.tiktok.com/embed/v2/${videoId}`;
   /* Active state: when iframe is loaded, switch to proper layout */
   .tiktok-embed__placeholder--active {
     display: block;
+    position: relative;
     overflow: visible;
     min-height: auto;
     aspect-ratio: 9 / 16.5;
@@ -176,10 +179,6 @@ const iframeSrc = `https://www.tiktok.com/embed/v2/${videoId}`;
     border: none;
     border-radius: var(--radius-md);
     transition: opacity 0.3s ease;
-  }
-
-  .tiktok-embed__placeholder--active {
-    position: relative;
   }
 
   /* ---------- Load button ---------- */
