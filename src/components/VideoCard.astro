@@ -34,6 +34,9 @@ const href = `${base}${restaurantSlug}/${captionSlug}-${videoId}/`;
 const safeThumbnail = resolveThumbnail(thumbnailUrl);
 const resolvedThumbnail = safeThumbnail.startsWith('http') ? safeThumbnail : (safeThumbnail.startsWith('/') && !safeThumbnail.startsWith(base) ? base + safeThumbnail.slice(1) : safeThumbnail);
 
+// Only show the video thumbnail if we have a real TikTok thumbnail (remote URL)
+const hasRealThumbnail = thumbnailUrl.startsWith('http');
+
 function formatNumber(n: number): string {
   if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
   if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
@@ -42,20 +45,22 @@ function formatNumber(n: number): string {
 ---
 
 <article class="card video-card">
-  <div class="video-card__thumb" data-video-id={videoId} role="button" tabindex="0" aria-label={`Play review of ${restaurantName}`}>
-    <img
-      src={resolvedThumbnail}
-      alt={`${restaurantName} food review thumbnail`}
-      class="card__image"
-      loading="lazy"
-      width="270"
-      height="480"
-      onerror="this.style.display='none'"
-    />
-    <div class="video-card__overlay">
-      <span class="video-card__play">&#9654;</span>
+  {hasRealThumbnail && (
+    <div class="video-card__thumb" data-video-id={videoId} role="button" tabindex="0" aria-label={`Play review of ${restaurantName}`}>
+      <img
+        src={resolvedThumbnail}
+        alt={`${restaurantName} food review thumbnail`}
+        class="card__image"
+        loading="lazy"
+        width="270"
+        height="480"
+        onerror="this.style.display='none'"
+      />
+      <div class="video-card__overlay">
+        <span class="video-card__play">&#9654;</span>
+      </div>
     </div>
-  </div>
+  )}
   <div class="card__body">
     <a href={href} class="card__title-link">
       {rank && <span class="card__rank">#{rank}</span>}

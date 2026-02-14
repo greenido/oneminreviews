@@ -104,35 +104,8 @@ const jsonLd = {
     </div>
   </section>
 
-  <!-- Top Rated -->
-  <section class="section" style="padding-top: 0;">
-    <div class="container">
-      <div class="section__header">
-        <h2 class="section__title">Top Rated Restaurants</h2>
-        <p class="section__subtitle">The highest rated spots from our reviews</p>
-      </div>
-      <div class="grid grid--3">
-        {topRated.map(({ video, restaurant }) => (
-          <VideoCard
-            videoId={video.videoId}
-            restaurantName={restaurant.name}
-            restaurantSlug={restaurant.slug}
-            caption={video.caption}
-            city={video.city}
-            cuisine={video.cuisine}
-            thumbnailUrl={video.thumbnailUrl}
-            stats={video.stats}
-          />
-        ))}
-      </div>
-      <div style="text-align: center; margin-top: var(--space-xl);">
-        <a href={`${import.meta.env.BASE_URL}top-rated/`} class="btn btn--outline">View All Top Rated</a>
-      </div>
-    </div>
-  </section>
-
   <!-- Latest Reviews -->
-  <section class="section">
+  <section class="section" style="padding-top: 0;">
     <div class="container">
       <div class="section__header">
         <h2 class="section__title">Latest Reviews</h2>
@@ -154,6 +127,33 @@ const jsonLd = {
             />
           );
         })}
+      </div>
+    </div>
+  </section>
+
+  <!-- Top Rated -->
+  <section class="section">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title">Top Rated Restaurants</h2>
+        <p class="section__subtitle">The highest rated spots from our reviews</p>
+      </div>
+      <div class="grid grid--3">
+        {topRated.map(({ video, restaurant }) => (
+          <VideoCard
+            videoId={video.videoId}
+            restaurantName={restaurant.name}
+            restaurantSlug={restaurant.slug}
+            caption={video.caption}
+            city={video.city}
+            cuisine={video.cuisine}
+            thumbnailUrl={video.thumbnailUrl}
+            stats={video.stats}
+          />
+        ))}
+      </div>
+      <div style="text-align: center; margin-top: var(--space-xl);">
+        <a href={`${import.meta.env.BASE_URL}top-rated/`} class="btn btn--outline">View All Top Rated</a>
       </div>
     </div>
   </section>
