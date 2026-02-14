@@ -6,12 +6,11 @@ export interface Props {
 }
 
 const { videoId, embedUrl, thumbnailUrl } = Astro.props;
-const iframeSrc = `https://www.tiktok.com/embed/v2/${videoId}`;
 // Build the canonical TikTok watch URL from the video ID
 const tiktokWatchUrl = `https://www.tiktok.com/@oneminreviews/video/${videoId}`;
 ---
 
-<div class="tiktok-embed-wrapper" data-video-id={videoId} data-iframe-src={iframeSrc} data-embed-url={tiktokWatchUrl} data-thumbnail-url={thumbnailUrl ?? ''}>
+<div class="tiktok-embed-wrapper" data-video-id={videoId} data-embed-url={tiktokWatchUrl} data-thumbnail-url={thumbnailUrl ?? ''}>
   <div class="tiktok-embed__placeholder" id={`tiktok-${videoId}`}>
     {thumbnailUrl && (
       <img
@@ -44,10 +43,9 @@ const tiktokWatchUrl = `https://www.tiktok.com/@oneminreviews/video/${videoId}`;
   function initTikTokEmbeds() {
     document.querySelectorAll('.tiktok-embed-wrapper[data-video-id]').forEach((wrapper) => {
       const videoId = wrapper.getAttribute('data-video-id');
-      const iframeSrc = wrapper.getAttribute('data-iframe-src');
       const embedUrl = wrapper.getAttribute('data-embed-url');
       const thumbnailUrl = wrapper.getAttribute('data-thumbnail-url');
-      if (!videoId || !iframeSrc || !embedUrl) return;
+      if (!videoId || !embedUrl) return;
 
       // Skip if already initialised
       if (wrapper.hasAttribute('data-init')) return;
@@ -55,6 +53,12 @@ const tiktokWatchUrl = `https://www.tiktok.com/@oneminreviews/video/${videoId}`;
 
       const btn = wrapper.querySelector('.tiktok-embed__load-btn');
       if (!btn) return;
+
+      const tiktokUrl = embedUrl;
+      // Direct iframe embed URL — avoids loading embed.js and its analytics
+      // scripts (browser.oci.js, slardar.web.pre.js) in the parent document,
+      // which trigger Permissions-Policy "unload" violations on GitHub Pages.
+      const iframeSrc = `https://www.tiktok.com/embed/v2/${videoId}`;
 
       /** Build the thumbnail HTML for fallback states */
       function thumbnailHTML() {
@@ -71,12 +75,37 @@ const tiktokWatchUrl = `https://www.tiktok.com/@oneminreviews/video/${videoId}`;
               <span class="tiktok-embed__play">&#9654;</span>
               <span>Load TikTok Video</span>
             </button>
-            <a class="tiktok-embed__direct-link" href="${embedUrl}" target="_blank" rel="noopener noreferrer">
+            <a class="tiktok-embed__direct-link" href="${tiktokUrl}" target="_blank" rel="noopener noreferrer">
               Or watch directly on TikTok &rarr;
             </a>
           </div>
         `;
       }
+
+      const showFallback = (placeholder) => {
+        placeholder.style.cssText = '';
+        placeholder.innerHTML = `
+          ${thumbnailHTML()}
+          <div class="tiktok-embed__fallback">
+            <span class="tiktok-embed__fallback-icon">&#127909;</span>
+            <p class="tiktok-embed__fallback-title">Couldn&rsquo;t load the video</p>
+            <p class="tiktok-embed__fallback-sub">The TikTok player may be blocked by your browser or an ad-blocker.</p>
+            <a class="tiktok-embed__watch-btn" href="${tiktokUrl}" target="_blank" rel="noopener noreferrer">
+              Watch on TikTok &rarr;
+            </a>
+            <button class="tiktok-embed__retry-btn">Try loading again</button>
+          </div>
+        `;
+        const retryBtn = placeholder.querySelector('.tiktok-embed__retry-btn');
+        if (retryBtn) {
+          retryBtn.addEventListener('click', () => {
+            wrapper.removeAttribute('data-init');
+            placeholder.style.cssText = '';
+            placeholder.innerHTML = placeholderHTML();
+            initTikTokEmbeds();
+          }, { once: true });
+        }
+      };
 
       const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
@@ -86,14 +115,15 @@ const tiktokWatchUrl = `https://www.tiktok.com/@oneminreviews/video/${videoId}`;
             const placeholder = wrapper.querySelector('.tiktok-embed__placeholder');
             if (!placeholder) return;
 
-            // Switch placeholder to proper layout for iframe display
+            // Switch placeholder to proper layout for embed display
             placeholder.style.display = 'block';
             placeholder.style.overflow = 'visible';
             placeholder.style.minHeight = '740px';
             placeholder.style.border = 'none';
             placeholder.style.background = 'transparent';
 
-            // Replace placeholder with the iframe directly
+            // Use a direct iframe instead of embed.js to avoid
+            // Permissions-Policy violations from TikTok analytics scripts
             placeholder.innerHTML = `
               <div class="tiktok-embed__loading">
                 <div class="tiktok-embed__spinner"></div>
@@ -103,60 +133,34 @@ const tiktokWatchUrl = `https://www.tiktok.com/@oneminreviews/video/${videoId}`;
                 class="tiktok-embed__iframe"
                 src="${iframeSrc}"
                 allowfullscreen
-                allow="encrypted-media"
-                style="opacity: 0; width: 100%; min-height: 740px; border: none; border-radius: 12px;"
+                allow="encrypted-media; autoplay"
+                sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-presentation"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                title="TikTok video ${videoId}"
               ></iframe>
             `;
 
             const iframe = placeholder.querySelector('iframe');
-            const loader = placeholder.querySelector('.tiktok-embed__loading');
             let settled = false;
 
-            const showFallback = () => {
-              if (settled) return;
-              settled = true;
-              placeholder.style.cssText = '';
-              placeholder.innerHTML = `
-                ${thumbnailHTML()}
-                <div class="tiktok-embed__fallback">
-                  <span class="tiktok-embed__fallback-icon">&#127909;</span>
-                  <p class="tiktok-embed__fallback-title">Couldn&rsquo;t load the video</p>
-                  <p class="tiktok-embed__fallback-sub">The TikTok player may be blocked by your browser or an ad-blocker.</p>
-                  <a class="tiktok-embed__watch-btn" href="${embedUrl}" target="_blank" rel="noopener noreferrer">
-                    Watch on TikTok &rarr;
-                  </a>
-                  <button class="tiktok-embed__retry-btn">Try loading again</button>
-                </div>
-              `;
-              const retryBtn = placeholder.querySelector('.tiktok-embed__retry-btn');
-              if (retryBtn) {
-                retryBtn.addEventListener('click', () => {
-                  wrapper.removeAttribute('data-init');
-                  placeholder.style.cssText = '';
-                  placeholder.innerHTML = placeholderHTML();
-                  initTikTokEmbeds();
-                }, { once: true });
-              }
-            };
-
-            // When iframe loads successfully, reveal it and hide spinner
             if (iframe) {
               iframe.addEventListener('load', () => {
-                if (settled) return;
-                settled = true;
-                iframe.style.opacity = '1';
-                if (loader) loader.remove();
-              });
-
-              iframe.addEventListener('error', () => {
-                showFallback();
+                if (!settled) {
+                  settled = true;
+                  const loader = placeholder.querySelector('.tiktok-embed__loading');
+                  if (loader) loader.remove();
+                }
               });
             }
 
-            // Timeout: if iframe hasn't loaded in 10s, show fallback
+            // Timeout: if embed hasn't loaded in 12s, show fallback
             setTimeout(() => {
-              if (!settled) showFallback();
-            }, 10000);
+              if (!settled) {
+                settled = true;
+                showFallback(placeholder);
+              }
+            }, 12000);
 
           }, { once: true });
 

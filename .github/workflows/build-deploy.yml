@@ -55,16 +55,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # ---- Cache data and assets across runs ----
-      - name: Cache data files
+      # ---- Cache heavy media assets across runs ----
+      # NOTE: Do NOT cache data/ — it is tracked in git and the
+      # restore-keys fallback could overwrite newer JSON with stale data.
+      - name: Cache media assets
         uses: actions/cache@v4
         with:
-          path: |
-            data/
-            assets/images/
-          key: data-${{ runner.os }}-${{ hashFiles('data/*.json') }}
+          path: assets/images/
+          key: media-${{ runner.os }}-${{ hashFiles('assets/images/**') }}
           restore-keys: |
-            data-${{ runner.os }}-
+            media-${{ runner.os }}-
 
       # ---- TikTok Scraper ----
       - name: Install yt-dlp

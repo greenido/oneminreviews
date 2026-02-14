@@ -161,6 +161,7 @@ p {
 .card__image {
   aspect-ratio: 9/16;
   object-fit: cover;
+  object-position: center bottom;
   width: 100%;
   background: var(--color-surface-hover);
 }

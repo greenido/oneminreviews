@@ -34,6 +34,9 @@ const href = `${base}${restaurantSlug}/${captionSlug}-${videoId}/`;
 const safeThumbnail = resolveThumbnail(thumbnailUrl);
 const resolvedThumbnail = safeThumbnail.startsWith('http') ? safeThumbnail : (safeThumbnail.startsWith('/') && !safeThumbnail.startsWith(base) ? base + safeThumbnail.slice(1) : safeThumbnail);
 
+// Build a local OG-image fallback URL so expired TikTok CDN thumbnails degrade gracefully
+const localOgFallback = `${base}assets/images/${videoId}/og.webp`;
+
 // Only show the video thumbnail if we have a real image (not the placeholder)
 const hasRealThumbnail = safeThumbnail !== PLACEHOLDER_THUMBNAIL;
 
@@ -54,7 +57,8 @@ function formatNumber(n: number): string {
         loading="lazy"
         width="270"
         height="480"
-        onerror="this.style.display='none'"
+        data-fallback={localOgFallback}
+        onerror={`if(!this.dataset.tried){this.dataset.tried='1';this.src=this.dataset.fallback}else{this.style.display='none'}`}
       />
       <div class="video-card__overlay">
         <span class="video-card__play">&#9654;</span>
@@ -91,39 +95,68 @@ function formatNumber(n: number): string {
         const videoId = thumb.getAttribute('data-video-id');
         if (!videoId) return;
 
+        const tiktokUrl = `https://www.tiktok.com/@oneminreviews/video/${videoId}`;
+        // Direct iframe embed URL — avoids loading embed.js and its analytics
+        // scripts (browser.oci.js, slardar.web.pre.js) in the parent document,
+        // which trigger Permissions-Policy "unload" violations on GitHub Pages.
         const iframeSrc = `https://www.tiktok.com/embed/v2/${videoId}`;
 
         // Save original content for restore
         const originalHTML = thumb.innerHTML;
 
-        // Replace thumbnail with embed
+        // Replace thumbnail with a direct TikTok iframe embed + spinner
         thumb.innerHTML = `
           <div class="video-card__embed-wrap">
             <div class="video-card__embed-loading">
               <div class="video-card__spinner"></div>
             </div>
             <iframe
-              src="${iframeSrc}"
               class="video-card__embed-iframe"
+              src="${iframeSrc}"
               allowfullscreen
-              allow="encrypted-media"
-              style="opacity: 0; position: absolute; inset: 0; width: 100%; height: 100%; border: none;"
+              allow="encrypted-media; autoplay"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-presentation"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              title="TikTok video ${videoId}"
             ></iframe>
             <button class="video-card__close-btn" aria-label="Close video">&times;</button>
           </div>
         `;
         thumb.classList.add('video-card__thumb--playing');
 
-        const iframe = thumb.querySelector('iframe');
         const loader = thumb.querySelector('.video-card__embed-loading');
         const closeBtn = thumb.querySelector('.video-card__close-btn');
+        const iframe = thumb.querySelector('iframe');
 
+        // Remove spinner once iframe loads
         if (iframe) {
           iframe.addEventListener('load', () => {
-            iframe.style.opacity = '1';
             if (loader) loader.remove();
           });
         }
+
+        // Fallback: if nothing renders after 8s, show a direct link
+        setTimeout(() => {
+          if (loader && loader.parentNode) {
+            loader.remove();
+            const wrap = thumb.querySelector('.video-card__embed-wrap');
+            if (wrap && !wrap.querySelector('.video-card__fallback')) {
+              const fallback = document.createElement('div');
+              fallback.className = 'video-card__fallback';
+              fallback.innerHTML = `
+                <span style="font-size:2rem;">&#127909;</span>
+                <p style="margin:8px 0 4px;font-weight:700;">Open on TikTok</p>
+                <a href="${tiktokUrl}" target="_blank" rel="noopener noreferrer"
+                   style="color:var(--color-accent);text-decoration:underline;">
+                  Watch this review &rarr;
+                </a>
+              `;
+              fallback.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:1rem;';
+              wrap.prepend(fallback);
+            }
+          }
+        }, 8000);
 
         if (closeBtn) {
           closeBtn.addEventListener('click', (e) => {
