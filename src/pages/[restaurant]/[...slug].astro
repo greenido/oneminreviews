@@ -22,6 +22,7 @@ import {
   getGoogleReviews,
   tiktokWatchUrl,
   tiktokEmbedUrl,
+  resolveThumbnail,
   type Video,
   type Restaurant,
 } from '../../lib/data';
@@ -84,8 +85,9 @@ const isoDate = new Date(video.createTime * 1000).toISOString();
 
 // SEO
 const base = import.meta.env.BASE_URL;
-// Resolve thumbnail URL: prepend base for local paths
-const resolvedThumbnail = video.thumbnailUrl.startsWith('http') ? video.thumbnailUrl : (video.thumbnailUrl.startsWith('/') && !video.thumbnailUrl.startsWith(base) ? base + video.thumbnailUrl.slice(1) : video.thumbnailUrl);
+// Resolve thumbnail URL: swap missing local images for a real placeholder, then prepend base
+const safeThumbnail = resolveThumbnail(video.thumbnailUrl);
+const resolvedThumbnail = safeThumbnail.startsWith('http') ? safeThumbnail : (safeThumbnail.startsWith('/') && !safeThumbnail.startsWith(base) ? base + safeThumbnail.slice(1) : safeThumbnail);
 
 const pageTitle = `${restaurant.name} Review — Honest TikTok Food Review`;
 const googleRatingBlurb = showGoogleData ? `Rated ${restaurant.google.rating}/5 on Google. ` : '';

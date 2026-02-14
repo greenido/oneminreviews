@@ -171,6 +171,30 @@ export function cuisinePath(cuisine: string): string {
   return `${import.meta.env.BASE_URL}cuisine/${cuisineSlug(cuisine)}/`;
 }
 
+// ---------- Thumbnail Helpers ----------
+
+const PLACEHOLDER_THUMBNAIL = '/assets/images/placeholder.svg';
+
+/**
+ * Resolve a thumbnailUrl to a usable value.
+ * Prefer locally-generated OG images (og.webp) that ship with the repo in
+ * public/assets/images/<videoId>/. Fall back to placeholder only when no
+ * OG image exists for the given video.
+ * Remote (http/https) URLs are returned as-is.
+ */
+export function resolveThumbnail(thumbnailUrl: string): string {
+  if (!thumbnailUrl) return PLACEHOLDER_THUMBNAIL;
+  // Remote URLs are fine
+  if (thumbnailUrl.startsWith('http')) return thumbnailUrl;
+  // Local per-video path — swap frame-*.jpg for og.webp which we ship in public/
+  const match = thumbnailUrl.match(/^\/assets\/images\/(\d+)\//);
+  if (match) {
+    return `/assets/images/${match[1]}/og.webp`;
+  }
+  // Any other local path — keep as-is (it might be a real public file)
+  return thumbnailUrl;
+}
+
 // ---------- TikTok URL Helpers ----------
 
 const TIKTOK_HANDLE = 'oneminreviews';
