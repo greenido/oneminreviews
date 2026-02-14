@@ -88,11 +88,11 @@ export function getVideosByCuisine(cuisine: string): Video[] {
 // ---------- Aggregation ----------
 
 export function getCities(): string[] {
-  return [...new Set(getVideos().map((v) => v.city))].sort();
+  return [...new Set(getVideos().map((v) => v.city).filter(Boolean))].sort();
 }
 
 export function getCuisines(): string[] {
-  return [...new Set(getVideos().map((v) => v.cuisine))].sort();
+  return [...new Set(getVideos().map((v) => v.cuisine).filter(Boolean))].sort();
 }
 
 export function getTopRated(limit = 10): { video: Video; restaurant: Restaurant }[] {

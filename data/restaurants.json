@@ -8,14 +8,42 @@
     "address": "27 Prince St, New York, NY 10012",
     "lat": 40.7234,
     "lng": -73.9946,
-    "google": { "rating": 4.5, "reviewCount": 8420, "placeId": "ChIJPzGtUmBZwokR1QF6xS_W1Xs" },
-    "yelp": { "rating": 4.0, "reviewCount": 5230, "url": "https://www.yelp.com/biz/prince-street-pizza-new-york" },
+    "google": {
+      "rating": 4.5,
+      "reviewCount": 8420,
+      "placeId": "ChIJPzGtUmBZwokR1QF6xS_W1Xs"
+    },
+    "yelp": {
+      "rating": 4,
+      "reviewCount": 5230,
+      "url": "https://www.yelp.com/biz/prince-street-pizza-new-york"
+    },
     "reviews": [
-      { "source": "google", "author": "Mike T.", "rating": 5, "text": "The spicy spring is absolutely worth the wait. Best square slice in the city, hands down.", "date": "2025-12-15" },
-      { "source": "google", "author": "Sarah L.", "rating": 5, "text": "Came here after seeing it on TikTok. Did not disappoint. The pepperoni cups are perfection.", "date": "2025-11-20" },
-      { "source": "yelp", "author": "David R.", "rating": 4, "text": "Great pizza but the line can be brutal on weekends. Go on a weekday if you can.", "date": "2025-10-08" }
+      {
+        "source": "google",
+        "author": "Mike T.",
+        "rating": 5,
+        "text": "The spicy spring is absolutely worth the wait. Best square slice in the city, hands down.",
+        "date": "2025-12-15"
+      },
+      {
+        "source": "google",
+        "author": "Sarah L.",
+        "rating": 5,
+        "text": "Came here after seeing it on TikTok. Did not disappoint. The pepperoni cups are perfection.",
+        "date": "2025-11-20"
+      },
+      {
+        "source": "yelp",
+        "author": "David R.",
+        "rating": 4,
+        "text": "Great pizza but the line can be brutal on weekends. Go on a weekday if you can.",
+        "date": "2025-10-08"
+      }
     ],
-    "videoIds": ["7312456789012"]
+    "videoIds": [
+      "7312456789012"
+    ]
   },
   "joes-pizza": {
     "name": "Joe's Pizza",
@@ -26,13 +54,35 @@
     "address": "7 Carmine St, New York, NY 10014",
     "lat": 40.7306,
     "lng": -74.0021,
-    "google": { "rating": 4.4, "reviewCount": 12300, "placeId": "ChIJD7fiBh9YwokRYTUuf2p1c5I" },
-    "yelp": { "rating": 4.0, "reviewCount": 7810, "url": "https://www.yelp.com/biz/joes-pizza-new-york" },
+    "google": {
+      "rating": 4.4,
+      "reviewCount": 12300,
+      "placeId": "ChIJD7fiBh9YwokRYTUuf2p1c5I"
+    },
+    "yelp": {
+      "rating": 4,
+      "reviewCount": 7810,
+      "url": "https://www.yelp.com/biz/joes-pizza-new-york"
+    },
     "reviews": [
-      { "source": "google", "author": "Chris B.", "rating": 5, "text": "The quintessential NYC slice. Thin, foldable, perfectly charred. This is what pizza should be.", "date": "2025-12-01" },
-      { "source": "yelp", "author": "Jessica M.", "rating": 4, "text": "Classic slice spot. Nothing fancy, just really solid New York pizza. Cash only.", "date": "2025-11-15" }
+      {
+        "source": "google",
+        "author": "Chris B.",
+        "rating": 5,
+        "text": "The quintessential NYC slice. Thin, foldable, perfectly charred. This is what pizza should be.",
+        "date": "2025-12-01"
+      },
+      {
+        "source": "yelp",
+        "author": "Jessica M.",
+        "rating": 4,
+        "text": "Classic slice spot. Nothing fancy, just really solid New York pizza. Cash only.",
+        "date": "2025-11-15"
+      }
     ],
-    "videoIds": ["7298765432101"]
+    "videoIds": [
+      "7298765432101"
+    ]
   },
   "tatiana-restaurant": {
     "name": "Tatiana",
@@ -43,13 +93,35 @@
     "address": "3152 Brighton 6th St, Brooklyn, NY 11235",
     "lat": 40.5775,
     "lng": -73.9614,
-    "google": { "rating": 4.6, "reviewCount": 2140, "placeId": "ChIJVVVVVaFbwokR3rKd8bHDLPk" },
-    "yelp": { "rating": 4.5, "reviewCount": 1560, "url": "https://www.yelp.com/biz/tatiana-brooklyn" },
+    "google": {
+      "rating": 4.6,
+      "reviewCount": 2140,
+      "placeId": "ChIJVVVVVaFbwokR3rKd8bHDLPk"
+    },
+    "yelp": {
+      "rating": 4.5,
+      "reviewCount": 1560,
+      "url": "https://www.yelp.com/biz/tatiana-brooklyn"
+    },
     "reviews": [
-      { "source": "google", "author": "Anna K.", "rating": 5, "text": "A hidden gem in Brighton Beach. The khachapuri and pelmeni are authentic and incredible.", "date": "2025-12-10" },
-      { "source": "yelp", "author": "Pavel S.", "rating": 5, "text": "Best Georgian-Russian food outside of the former USSR. The lamb dishes are extraordinary.", "date": "2025-11-28" }
+      {
+        "source": "google",
+        "author": "Anna K.",
+        "rating": 5,
+        "text": "A hidden gem in Brighton Beach. The khachapuri and pelmeni are authentic and incredible.",
+        "date": "2025-12-10"
+      },
+      {
+        "source": "yelp",
+        "author": "Pavel S.",
+        "rating": 5,
+        "text": "Best Georgian-Russian food outside of the former USSR. The lamb dishes are extraordinary.",
+        "date": "2025-11-28"
+      }
     ],
-    "videoIds": ["7301234567890"]
+    "videoIds": [
+      "7301234567890"
+    ]
   },
   "langers-deli": {
     "name": "Langer's Delicatessen",
@@ -60,13 +132,35 @@
     "address": "704 S Alvarado St, Los Angeles, CA 90057",
     "lat": 34.0558,
     "lng": -118.2755,
-    "google": { "rating": 4.6, "reviewCount": 4870, "placeId": "ChIJGzGd8EzGwoARYlWKyEW3sKo" },
-    "yelp": { "rating": 4.5, "reviewCount": 3420, "url": "https://www.yelp.com/biz/langers-delicatessen-los-angeles" },
+    "google": {
+      "rating": 4.6,
+      "reviewCount": 4870,
+      "placeId": "ChIJGzGd8EzGwoARYlWKyEW3sKo"
+    },
+    "yelp": {
+      "rating": 4.5,
+      "reviewCount": 3420,
+      "url": "https://www.yelp.com/biz/langers-delicatessen-los-angeles"
+    },
     "reviews": [
-      { "source": "google", "author": "Tom H.", "rating": 5, "text": "The #19 is the greatest sandwich in America. The pastrami is hand-cut, perfectly fatty, and the rye bread is next level.", "date": "2025-12-20" },
-      { "source": "yelp", "author": "Lisa C.", "rating": 5, "text": "Better than Katz's, fight me. The coleslaw and Swiss on the #19 is the perfect combo.", "date": "2025-11-10" }
+      {
+        "source": "google",
+        "author": "Tom H.",
+        "rating": 5,
+        "text": "The #19 is the greatest sandwich in America. The pastrami is hand-cut, perfectly fatty, and the rye bread is next level.",
+        "date": "2025-12-20"
+      },
+      {
+        "source": "yelp",
+        "author": "Lisa C.",
+        "rating": 5,
+        "text": "Better than Katz's, fight me. The coleslaw and Swiss on the #19 is the perfect combo.",
+        "date": "2025-11-10"
+      }
     ],
-    "videoIds": ["7287654321098"]
+    "videoIds": [
+      "7287654321098"
+    ]
   },
   "pizzana": {
     "name": "Pizzana",
@@ -77,13 +171,35 @@
     "address": "11712 San Vicente Blvd, Los Angeles, CA 90049",
     "lat": 34.0557,
     "lng": -118.4725,
-    "google": { "rating": 4.5, "reviewCount": 3210, "placeId": "ChIJ_eFxYLK8woARRPcPsG6HNDI" },
-    "yelp": { "rating": 4.5, "reviewCount": 2180, "url": "https://www.yelp.com/biz/pizzana-los-angeles" },
+    "google": {
+      "rating": 4.5,
+      "reviewCount": 3210,
+      "placeId": "ChIJ_eFxYLK8woARRPcPsG6HNDI"
+    },
+    "yelp": {
+      "rating": 4.5,
+      "reviewCount": 2180,
+      "url": "https://www.yelp.com/biz/pizzana-los-angeles"
+    },
     "reviews": [
-      { "source": "google", "author": "Marco P.", "rating": 5, "text": "Neapolitan perfection in LA. The cacio e pepe pizza is unlike anything I've ever had.", "date": "2025-12-05" },
-      { "source": "yelp", "author": "Rachel W.", "rating": 4, "text": "Beautiful space, incredible pizza. The burrata is a must-start. Reservations essential.", "date": "2025-11-22" }
+      {
+        "source": "google",
+        "author": "Marco P.",
+        "rating": 5,
+        "text": "Neapolitan perfection in LA. The cacio e pepe pizza is unlike anything I've ever had.",
+        "date": "2025-12-05"
+      },
+      {
+        "source": "yelp",
+        "author": "Rachel W.",
+        "rating": 4,
+        "text": "Beautiful space, incredible pizza. The burrata is a must-start. Reservations essential.",
+        "date": "2025-11-22"
+      }
     ],
-    "videoIds": ["7276543210987"]
+    "videoIds": [
+      "7276543210987"
+    ]
   },
   "bavel": {
     "name": "Bavel",
@@ -94,13 +210,35 @@
     "address": "500 Mateo St, Los Angeles, CA 90013",
     "lat": 34.0372,
     "lng": -118.2318,
-    "google": { "rating": 4.6, "reviewCount": 5640, "placeId": "ChIJx0VBspPCwoAR-WQfqh9jG0E" },
-    "yelp": { "rating": 4.5, "reviewCount": 4120, "url": "https://www.yelp.com/biz/bavel-los-angeles" },
+    "google": {
+      "rating": 4.6,
+      "reviewCount": 5640,
+      "placeId": "ChIJx0VBspPCwoAR-WQfqh9jG0E"
+    },
+    "yelp": {
+      "rating": 4.5,
+      "reviewCount": 4120,
+      "url": "https://www.yelp.com/biz/bavel-los-angeles"
+    },
     "reviews": [
-      { "source": "google", "author": "Nina F.", "rating": 5, "text": "The lamb neck shawarma is transcendent. Every dish here is a masterclass in flavor.", "date": "2025-12-18" },
-      { "source": "yelp", "author": "James L.", "rating": 5, "text": "Best Middle Eastern food in LA, possibly the US. The pita bread alone is worth the visit.", "date": "2025-11-30" }
+      {
+        "source": "google",
+        "author": "Nina F.",
+        "rating": 5,
+        "text": "The lamb neck shawarma is transcendent. Every dish here is a masterclass in flavor.",
+        "date": "2025-12-18"
+      },
+      {
+        "source": "yelp",
+        "author": "James L.",
+        "rating": 5,
+        "text": "Best Middle Eastern food in LA, possibly the US. The pita bread alone is worth the visit.",
+        "date": "2025-11-30"
+      }
     ],
-    "videoIds": ["7265432109876"]
+    "videoIds": [
+      "7265432109876"
+    ]
   },
   "portillos": {
     "name": "Portillo's",
@@ -111,13 +249,35 @@
     "address": "100 W Ontario St, Chicago, IL 60654",
     "lat": 41.8932,
     "lng": -87.6314,
-    "google": { "rating": 4.4, "reviewCount": 15200, "placeId": "ChIJrTgXb8UsDogRpMInj2tx3Zc" },
-    "yelp": { "rating": 4.0, "reviewCount": 9870, "url": "https://www.yelp.com/biz/portillos-hot-dogs-chicago" },
+    "google": {
+      "rating": 4.4,
+      "reviewCount": 15200,
+      "placeId": "ChIJrTgXb8UsDogRpMInj2tx3Zc"
+    },
+    "yelp": {
+      "rating": 4,
+      "reviewCount": 9870,
+      "url": "https://www.yelp.com/biz/portillos-hot-dogs-chicago"
+    },
     "reviews": [
-      { "source": "google", "author": "Dan M.", "rating": 5, "text": "The Italian beef dipped with hot giardiniera is a Chicago institution. Cannot visit the city without stopping here.", "date": "2025-12-12" },
-      { "source": "yelp", "author": "Karen S.", "rating": 4, "text": "Great fast food. The chocolate cake shake is insane. Italian beef is the real star though.", "date": "2025-11-05" }
+      {
+        "source": "google",
+        "author": "Dan M.",
+        "rating": 5,
+        "text": "The Italian beef dipped with hot giardiniera is a Chicago institution. Cannot visit the city without stopping here.",
+        "date": "2025-12-12"
+      },
+      {
+        "source": "yelp",
+        "author": "Karen S.",
+        "rating": 4,
+        "text": "Great fast food. The chocolate cake shake is insane. Italian beef is the real star though.",
+        "date": "2025-11-05"
+      }
     ],
-    "videoIds": ["7254321098765"]
+    "videoIds": [
+      "7254321098765"
+    ]
   },
   "lou-malnatis": {
     "name": "Lou Malnati's Pizzeria",
@@ -127,14 +287,36 @@
     "cuisine": "Pizza",
     "address": "439 N Wells St, Chicago, IL 60654",
     "lat": 41.8905,
-    "lng": -87.6340,
-    "google": { "rating": 4.5, "reviewCount": 11800, "placeId": "ChIJ_b7W6YcsDogRJD48jQLJvFI" },
-    "yelp": { "rating": 4.0, "reviewCount": 7540, "url": "https://www.yelp.com/biz/lou-malnatis-pizzeria-chicago" },
+    "lng": -87.634,
+    "google": {
+      "rating": 4.5,
+      "reviewCount": 11800,
+      "placeId": "ChIJ_b7W6YcsDogRJD48jQLJvFI"
+    },
+    "yelp": {
+      "rating": 4,
+      "reviewCount": 7540,
+      "url": "https://www.yelp.com/biz/lou-malnatis-pizzeria-chicago"
+    },
     "reviews": [
-      { "source": "google", "author": "Steve R.", "rating": 5, "text": "The buttercrust deep dish is life-changing. Forget Giordano's, this is the real Chicago pizza.", "date": "2025-12-08" },
-      { "source": "yelp", "author": "Amy T.", "rating": 5, "text": "Malnati Chicago Classic never fails. The sausage patty under the cheese is genius.", "date": "2025-11-18" }
+      {
+        "source": "google",
+        "author": "Steve R.",
+        "rating": 5,
+        "text": "The buttercrust deep dish is life-changing. Forget Giordano's, this is the real Chicago pizza.",
+        "date": "2025-12-08"
+      },
+      {
+        "source": "yelp",
+        "author": "Amy T.",
+        "rating": 5,
+        "text": "Malnati Chicago Classic never fails. The sausage patty under the cheese is genius.",
+        "date": "2025-11-18"
+      }
     ],
-    "videoIds": ["7243210987654"]
+    "videoIds": [
+      "7243210987654"
+    ]
   },
   "franklin-barbecue": {
     "name": "Franklin Barbecue",
@@ -145,13 +327,35 @@
     "address": "900 E 11th St, Austin, TX 78702",
     "lat": 30.2701,
     "lng": -97.7312,
-    "google": { "rating": 4.7, "reviewCount": 9240, "placeId": "ChIJ06wLIwi1RIYRyrK0ag8MQUQ" },
-    "yelp": { "rating": 4.5, "reviewCount": 6780, "url": "https://www.yelp.com/biz/franklin-barbecue-austin" },
+    "google": {
+      "rating": 4.7,
+      "reviewCount": 9240,
+      "placeId": "ChIJ06wLIwi1RIYRyrK0ag8MQUQ"
+    },
+    "yelp": {
+      "rating": 4.5,
+      "reviewCount": 6780,
+      "url": "https://www.yelp.com/biz/franklin-barbecue-austin"
+    },
     "reviews": [
-      { "source": "google", "author": "Brandon K.", "rating": 5, "text": "The brisket is the gold standard. Moist, smoky, perfect bark. Worth the 4-hour wait, every time.", "date": "2025-12-22" },
-      { "source": "yelp", "author": "Maria G.", "rating": 5, "text": "Brought a chair and a book. Waited 3.5 hours. Would do it again tomorrow. The pulled pork is also incredible.", "date": "2025-11-25" }
+      {
+        "source": "google",
+        "author": "Brandon K.",
+        "rating": 5,
+        "text": "The brisket is the gold standard. Moist, smoky, perfect bark. Worth the 4-hour wait, every time.",
+        "date": "2025-12-22"
+      },
+      {
+        "source": "yelp",
+        "author": "Maria G.",
+        "rating": 5,
+        "text": "Brought a chair and a book. Waited 3.5 hours. Would do it again tomorrow. The pulled pork is also incredible.",
+        "date": "2025-11-25"
+      }
     ],
-    "videoIds": ["7232109876543"]
+    "videoIds": [
+      "7232109876543"
+    ]
   },
   "superiority-burger": {
     "name": "Superiority Burger",
@@ -162,12 +366,130 @@
     "address": "430 E 9th St, New York, NY 10009",
     "lat": 40.7275,
     "lng": -73.9845,
-    "google": { "rating": 4.5, "reviewCount": 2870, "placeId": "ChIJC_jhRJ5ZwokRxm1UY8gBFzc" },
-    "yelp": { "rating": 4.5, "reviewCount": 1940, "url": "https://www.yelp.com/biz/superiority-burger-new-york" },
+    "google": {
+      "rating": 4.5,
+      "reviewCount": 2870,
+      "placeId": "ChIJC_jhRJ5ZwokRxm1UY8gBFzc"
+    },
+    "yelp": {
+      "rating": 4.5,
+      "reviewCount": 1940,
+      "url": "https://www.yelp.com/biz/superiority-burger-new-york"
+    },
     "reviews": [
-      { "source": "google", "author": "Emily Z.", "rating": 5, "text": "Proof that vegetarian food can be just as satisfying. The burger and the sides are all incredible.", "date": "2025-12-02" },
-      { "source": "yelp", "author": "Alex D.", "rating": 4, "text": "Tiny spot, huge flavors. The wrap of the day is always worth trying. Not just for vegetarians.", "date": "2025-11-12" }
+      {
+        "source": "google",
+        "author": "Emily Z.",
+        "rating": 5,
+        "text": "Proof that vegetarian food can be just as satisfying. The burger and the sides are all incredible.",
+        "date": "2025-12-02"
+      },
+      {
+        "source": "yelp",
+        "author": "Alex D.",
+        "rating": 4,
+        "text": "Tiny spot, huge flavors. The wrap of the day is always worth trying. Not just for vegetarians.",
+        "date": "2025-11-12"
+      }
     ],
-    "videoIds": ["7221098765432"]
+    "videoIds": [
+      "7221098765432"
+    ]
+  },
+  "oneminreviews": {
+    "name": "Oneminreviews",
+    "slug": "oneminreviews",
+    "city": "",
+    "state": "",
+    "cuisine": "",
+    "address": "",
+    "lat": 0,
+    "lng": 0,
+    "google": {
+      "rating": 0,
+      "reviewCount": 0
+    },
+    "yelp": {
+      "rating": 0,
+      "reviewCount": 0
+    },
+    "reviews": [],
+    "videoIds": [
+      "7606499639784705311",
+      "7602803925976108319",
+      "7600929471549410590",
+      "7598746351421246750",
+      "7596126819196144927",
+      "7595294920336805151"
+    ]
+  },
+  "oneminreviews-part": {
+    "name": "Oneminreviews Part",
+    "slug": "oneminreviews-part",
+    "city": "",
+    "state": "",
+    "cuisine": "Middle Eastern",
+    "address": "",
+    "lat": 0,
+    "lng": 0,
+    "google": {
+      "rating": 0,
+      "reviewCount": 0
+    },
+    "yelp": {
+      "rating": 0,
+      "reviewCount": 0
+    },
+    "reviews": [],
+    "videoIds": [
+      "7594327458103528734",
+      "7591642765235064094",
+      "7587920312017128734",
+      "7586757866321661214"
+    ]
+  },
+  "san-jose-ca": {
+    "name": "San Jose CA",
+    "slug": "san-jose-ca",
+    "city": "",
+    "state": "",
+    "cuisine": "Pizza",
+    "address": "",
+    "lat": 0,
+    "lng": 0,
+    "google": {
+      "rating": 0,
+      "reviewCount": 0
+    },
+    "yelp": {
+      "rating": 0,
+      "reviewCount": 0
+    },
+    "reviews": [],
+    "videoIds": [
+      "7592685821166161182"
+    ]
+  },
+  "long": {
+    "name": "Long",
+    "slug": "long",
+    "city": "",
+    "state": "",
+    "cuisine": "",
+    "address": "",
+    "lat": 0,
+    "lng": 0,
+    "google": {
+      "rating": 0,
+      "reviewCount": 0
+    },
+    "yelp": {
+      "rating": 0,
+      "reviewCount": 0
+    },
+    "reviews": [],
+    "videoIds": [
+      "7585271540892110110"
+    ]
   }
 }
