@@ -16,7 +16,7 @@ const {
   title,
   description,
   canonicalUrl,
-  ogImage = '/og-default.jpg',
+  ogImage,
   ogType = 'website',
   jsonLd,
   preloadImage,
@@ -26,7 +26,9 @@ const {
 const base = import.meta.env.BASE_URL;
 const siteUrl = Astro.site?.origin ?? 'https://greenido.github.io';
 const fullCanonical = canonicalUrl ? `${siteUrl}${canonicalUrl}` : Astro.url.href;
-const fullOgImage = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
+// Resolve OG image: use provided value, or default to base + og-default.jpg
+const resolvedOgImage = ogImage ?? `${base}og-default.jpg`;
+const fullOgImage = resolvedOgImage.startsWith('http') ? resolvedOgImage : `${siteUrl}${resolvedOgImage.startsWith('/') ? resolvedOgImage : base + resolvedOgImage}`;
 const fullTitle = title.includes('OneMinReviews') ? title : `${title} | OneMinReviews`;
 ---
 
@@ -62,7 +64,7 @@ const fullTitle = title.includes('OneMinReviews') ? title : `${title} | OneMinRe
 
     <!-- Preload hero image if provided -->
     {preloadImage && (
-      <link rel="preload" as="image" href={preloadImage} />
+      <link rel="preload" as="image" href={preloadImage.startsWith('http') ? preloadImage : (preloadImage.startsWith('/') && !preloadImage.startsWith(base) ? base + preloadImage.slice(1) : preloadImage)} />
     )}
 
     <!-- JSON-LD Structured Data -->

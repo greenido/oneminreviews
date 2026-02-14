@@ -85,22 +85,21 @@ export function getVideosByCuisine(cuisine: string): Video[] {
   );
 }
 
-// ---------- Yelp Availability ----------
+// ---------- Google Places Availability ----------
+
+/** Returns true if this restaurant has real Google Places data (rating > 0 and a placeId). */
+export function hasGoogleData(restaurant: Restaurant): boolean {
+  return !!(restaurant.google && restaurant.google.rating > 0 && restaurant.google.placeId);
+}
 
 /** Returns true if this restaurant has real Yelp data (rating > 0). */
 export function hasYelpData(restaurant: Restaurant): boolean {
   return !!(restaurant.yelp && restaurant.yelp.rating > 0);
 }
 
-/** Returns true if ANY restaurant in the dataset has real Yelp data. */
-export function siteHasYelpData(): boolean {
-  const restaurants = getRestaurants();
-  return Object.values(restaurants).some((r) => hasYelpData(r));
-}
-
-/** Returns the ratings label string — "Google" or "Google and Yelp" depending on data. */
-export function ratingsSourceLabel(): string {
-  return siteHasYelpData() ? 'Google and Yelp' : 'Google';
+/** Returns Google reviews for this restaurant (filtered from the reviews array). */
+export function getGoogleReviews(restaurant: Restaurant): ReviewEntry[] {
+  return restaurant.reviews.filter((r) => r.source === 'google');
 }
 
 // ---------- Aggregation ----------
@@ -122,9 +121,10 @@ export function getTopRated(limit = 10): { video: Video; restaurant: Restaurant 
     }))
     .filter((item) => item.restaurant)
     .sort((a, b) => {
-      const ratingA = a.restaurant.google?.rating ?? 0;
-      const ratingB = b.restaurant.google?.rating ?? 0;
-      return ratingB - ratingA;
+      // Sort by TikTok engagement (likes) — our own reviews metric
+      const likesA = a.video.stats?.likes ?? 0;
+      const likesB = b.video.stats?.likes ?? 0;
+      return likesB - likesA;
     })
     .slice(0, limit);
 }
@@ -171,6 +171,20 @@ export function cuisinePath(cuisine: string): string {
   return `${import.meta.env.BASE_URL}cuisine/${cuisineSlug(cuisine)}/`;
 }
 
+// ---------- TikTok URL Helpers ----------
+
+const TIKTOK_HANDLE = 'oneminreviews';
+
+/** Build the canonical TikTok watch URL for a given video ID. */
+export function tiktokWatchUrl(videoId: string): string {
+  return `https://www.tiktok.com/@${TIKTOK_HANDLE}/video/${videoId}`;
+}
+
+/** Build the TikTok embed iframe src URL for a given video ID. */
+export function tiktokEmbedUrl(videoId: string): string {
+  return `https://www.tiktok.com/embed/v2/${videoId}`;
+}
+
 // ---------- FAQ Generator ----------
 
 export function generateFAQs(
@@ -178,46 +192,42 @@ export function generateFAQs(
   video: Video
 ): { question: string; answer: string }[] {
   const name = restaurant.name;
-  const hasYelp = hasYelpData(restaurant);
+  const likes = video.stats?.likes ?? 0;
+  const hasGoogle = hasGoogleData(restaurant);
   const googleRating = restaurant.google?.rating ?? 0;
   const googleCount = restaurant.google?.reviewCount ?? 0;
-  const yelpRating = hasYelp ? restaurant.yelp!.rating : 0;
-  const yelpCount = hasYelp ? restaurant.yelp!.reviewCount : 0;
-  const totalCount = googleCount + yelpCount;
-  const avgRating = hasYelp
-    ? (googleRating + yelpRating) / 2
-    : googleRating;
-  const sources = hasYelp ? 'Google and Yelp' : 'Google';
 
-  return [
+  const faqs: { question: string; answer: string }[] = [
     {
       question: `Is ${name} worth it?`,
-      answer: `Based on ${totalCount} ${hasYelp ? 'combined reviews across ' : 'reviews on '}${sources}, ${name} holds an average rating of ${avgRating.toFixed(
-        1
-      )} out of 5. Our video review gives you an honest, unfiltered look at the experience.`,
+      answer: hasGoogle
+        ? `With a ${googleRating}/5 rating on Google from ${googleCount.toLocaleString()} reviews, ${name} is highly regarded. Watch our honest one-minute @oneminreviews video to see for yourself — no sponsorships, just the truth.`
+        : `Watch our honest one-minute video review to decide for yourself. @oneminreviews gives you an unfiltered, unsponsored look at the food, the vibe, and whether it's worth your money.`,
     },
     {
-      question: `What do customers say about ${name}?`,
-      answer:
-        restaurant.reviews.length > 0
-          ? `Recent reviews mention: "${restaurant.reviews[0].text}" — ${restaurant.reviews[0].author}`
-          : hasYelp
-            ? `${name} has strong ratings on both Google (${googleRating}) and Yelp (${yelpRating}). Check our video for a first-hand look.`
-            : `${name} has a strong ${googleRating} rating on Google. Check our video for a first-hand look.`,
+      question: `What does @oneminreviews think of ${name}?`,
+      answer: `Our reviewer visited ${name} and captured the experience in a one-minute video. With ${likes.toLocaleString()} likes, it's one of our most engaging reviews. Watch above for the honest verdict.`,
     },
     {
       question: `Where is ${name} located?`,
       answer: `${name} is located at ${restaurant.address}. It serves ${restaurant.cuisine.toLowerCase()} cuisine in ${restaurant.city}, ${restaurant.state}.`,
     },
     {
-      question: `What is ${name}'s rating?`,
-      answer: hasYelp
-        ? `${name} has a ${googleRating} rating on Google (${googleCount.toLocaleString()} reviews) and a ${yelpRating} rating on Yelp (${yelpCount.toLocaleString()} reviews).`
-        : `${name} has a ${googleRating} rating on Google (${googleCount.toLocaleString()} reviews).`,
+      question: `Who reviews ${name}?`,
+      answer: `${name} was reviewed by @oneminreviews — honest, one-minute video restaurant reviews with no sponsorships, no paid placements, just real opinions.`,
     },
     {
       question: `Is there a video review of ${name}?`,
       answer: `Yes! @oneminreviews posted an honest one-minute video review of ${name}. Watch it above to see the food, the vibe, and the verdict.`,
     },
   ];
+
+  if (hasGoogle) {
+    faqs.push({
+      question: `What is ${name}'s Google rating?`,
+      answer: `${name} has a ${googleRating}/5 rating on Google based on ${googleCount.toLocaleString()} reviews. Combined with our @oneminreviews video, you get the full picture before visiting.`,
+    });
+  }
+
+  return faqs;
 }

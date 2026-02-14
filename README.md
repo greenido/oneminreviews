@@ -2,7 +2,7 @@
 
 **Honest restaurant reviews, one minute at a time.**
 
-[OneMinReviews](https://oneminreviews.com) is a static site that archives and organizes the one-minute restaurant video reviews from the TikTok account **[@oneminreviews](https://www.tiktok.com/@oneminreviews)**. Real food. Real opinions. No sponsored content, no algorithms -- just honest takes on restaurants across the US.
+[OneMinReviews](https://greenido.github.io/oneminreviews/) is a static site that archives and organizes the one-minute restaurant video reviews from the TikTok account **[@oneminreviews](https://www.tiktok.com/@oneminreviews)**. Real food. Real opinions. No sponsored content, no algorithms -- just honest takes on restaurants across the US.
 
 ---
 

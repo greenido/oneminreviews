@@ -9,11 +9,8 @@ import {
   citySlug,
   cityPath,
   cuisinePath,
-  ratingsSourceLabel,
   type Video,
 } from '../../lib/data';
-
-const ratingsSources = ratingsSourceLabel();
 
 export function getStaticPaths() {
   const cities = getCities();
@@ -34,14 +31,14 @@ const restaurants = getRestaurants();
 // Get unique cuisines for this city
 const cuisines = [...new Set(videos.map((v) => v.cuisine))].sort();
 
-const description = `Discover the best restaurants in ${cityName} with honest one-minute video reviews by @oneminreviews. Ratings from ${ratingsSources} included.`;
+const description = `Discover the best restaurants in ${cityName} with honest one-minute video reviews by @oneminreviews.`;
 
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
   name: `${cityName} Restaurant Reviews`,
   description,
-  url: `https://oneminreviews.com${cityPath(cityName)}`,
+  url: `${Astro.site?.origin ?? 'https://greenido.github.io'}${cityPath(cityName)}`,
 };
 ---
 
@@ -56,8 +53,8 @@ const jsonLd = {
       <header class="section__header">
         <h1>Restaurant Reviews in {cityName}</h1>
         <p class="section__subtitle">
-          {videos.length} honest one-minute reviews of the best restaurants in {cityName}.
-          Watch real food reviews with ratings from {ratingsSources}.
+          {videos.length} honest one-minute reviews of the best restaurants in {cityName}
+          by @oneminreviews.
         </p>
       </header>
 
@@ -81,7 +78,6 @@ const jsonLd = {
               caption={video.caption}
               city={video.city}
               cuisine={video.cuisine}
-              rating={r?.google?.rating}
               thumbnailUrl={video.thumbnailUrl}
               stats={video.stats}
             />
@@ -95,8 +91,7 @@ const jsonLd = {
         <p>
           Our {cityName} restaurant reviews feature honest, unsponsored video content from
           @oneminreviews on TikTok. Each review is exactly one minute — no filler, just real
-          opinions about the food, the vibe, and whether it's worth your money. We enrich
-          every review with aggregate ratings from {ratingsSources} so you get the full picture.
+          opinions about the food, the vibe, and whether it's worth your money.
         </p>
       </div>
     </div>

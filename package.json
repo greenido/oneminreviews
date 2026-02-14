@@ -13,6 +13,8 @@
     "process-media": "node scripts/process-media.js",
     "generate-og": "node scripts/generate-og-images.js",
     "generate-sitemaps": "node scripts/generate-sitemaps.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "pipeline": "npm run scrape && npm run process-media && npm run enrich && npm run generate-og && npm run build && npm run generate-sitemaps"
   },
   "dependencies": {
@@ -22,6 +24,7 @@
   },
   "devDependencies": {
     "compromise": "^14.14.5",
-    "fluent-ffmpeg": "^2.1.3"
+    "fluent-ffmpeg": "^2.1.3",
+    "vitest": "^4.0.18"
   }
 }

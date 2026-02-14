@@ -1,4 +1,6 @@
 ---
+import { slugify } from '../lib/data';
+
 export interface Props {
   videoId: string;
   restaurantName: string;
@@ -6,7 +8,6 @@ export interface Props {
   caption: string;
   city: string;
   cuisine: string;
-  rating?: number;
   thumbnailUrl: string;
   stats: { likes: number; comments: number; shares: number };
   rank?: number;
@@ -19,20 +20,18 @@ const {
   caption,
   city,
   cuisine,
-  rating,
   thumbnailUrl,
   stats,
   rank,
 } = Astro.props;
 
-const slug = caption
-  .toLowerCase()
-  .replace(/[^a-z0-9\s-]/g, '')
-  .replace(/\s+/g, '-')
-  .slice(0, 50)
-  .replace(/-$/, '');
+// Use the shared slugify() so the link always matches the static path
+const captionSlug = slugify(caption).slice(0, 50).replace(/-$/, '');
 
-const href = `${import.meta.env.BASE_URL}${restaurantSlug}/${slug}-${videoId}/`;
+const base = import.meta.env.BASE_URL;
+const href = `${base}${restaurantSlug}/${captionSlug}-${videoId}/`;
+// Resolve thumbnail: prepend base for local paths that don't already include it
+const resolvedThumbnail = thumbnailUrl.startsWith('http') ? thumbnailUrl : (thumbnailUrl.startsWith('/') && !thumbnailUrl.startsWith(base) ? base + thumbnailUrl.slice(1) : thumbnailUrl);
 
 function formatNumber(n: number): string {
   if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
@@ -44,7 +43,7 @@ function formatNumber(n: number): string {
 <article class="card video-card">
   <div class="video-card__thumb" data-video-id={videoId} role="button" tabindex="0" aria-label={`Play review of ${restaurantName}`}>
     <img
-      src={thumbnailUrl}
+      src={resolvedThumbnail}
       alt={`${restaurantName} food review thumbnail`}
       class="card__image"
       loading="lazy"
@@ -62,14 +61,6 @@ function formatNumber(n: number): string {
       <h3 class="card__title">{restaurantName}</h3>
     </a>
     <div class="card__meta">
-      {rating && (
-        <span class="stars" aria-label={`${rating} out of 5 stars`}>
-          {'★'.repeat(Math.round(rating))}{'☆'.repeat(5 - Math.round(rating))}
-          <span>{rating.toFixed(1)}</span>
-        </span>
-      )}
-    </div>
-    <div class="card__meta" style="margin-top: 6px;">
       <span class="tag tag--city">{city}</span>
       <span class="tag tag--cuisine">{cuisine}</span>
     </div>

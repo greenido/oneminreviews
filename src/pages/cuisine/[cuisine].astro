@@ -9,11 +9,8 @@ import {
   cuisineSlug,
   cuisinePath,
   cityPath,
-  ratingsSourceLabel,
   type Video,
 } from '../../lib/data';
-
-const ratingsSources = ratingsSourceLabel();
 
 export function getStaticPaths() {
   const cuisines = getCuisines();
@@ -34,14 +31,14 @@ const restaurants = getRestaurants();
 // Get unique cities for this cuisine
 const cities = [...new Set(videos.map((v) => v.city))].sort();
 
-const description = `The best ${cuisineName.toLowerCase()} restaurants reviewed by @oneminreviews. Watch honest one-minute video reviews with ${ratingsSources} ratings.`;
+const description = `The best ${cuisineName.toLowerCase()} restaurants reviewed by @oneminreviews. Watch honest one-minute video reviews.`;
 
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
   name: `${cuisineName} Restaurant Reviews`,
   description,
-  url: `https://oneminreviews.com${cuisinePath(cuisineName)}`,
+  url: `${Astro.site?.origin ?? 'https://greenido.github.io'}${cuisinePath(cuisineName)}`,
 };
 ---
 
@@ -81,7 +78,6 @@ const jsonLd = {
               caption={video.caption}
               city={video.city}
               cuisine={video.cuisine}
-              rating={r?.google?.rating}
               thumbnailUrl={video.thumbnailUrl}
               stats={video.stats}
             />
@@ -93,9 +89,9 @@ const jsonLd = {
         <h2>About {cuisineName} Reviews</h2>
         <p>
           Looking for the best {cuisineName.toLowerCase()} restaurants? Our video reviews cover
-          top-rated {cuisineName.toLowerCase()} spots across the US, each reviewed in an honest
-          one-minute format by @oneminreviews. Every listing includes aggregate ratings from
-          {ratingsSources}, customer review snippets, and location details.
+          top {cuisineName.toLowerCase()} spots across the US, each reviewed in an honest
+          one-minute format by @oneminreviews. Every listing includes location details
+          and our reviewer's unsponsored verdict.
         </p>
       </div>
     </div>

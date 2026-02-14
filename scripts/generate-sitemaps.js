@@ -12,7 +12,8 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const DIST = resolve(ROOT, 'dist');
-const SITE_URL = 'https://oneminreviews.com';
+const SITE_URL = 'https://greenido.github.io';
+const BASE_PATH = '/oneminreviews/';
 
 // Load data
 const videos = JSON.parse(readFileSync(resolve(ROOT, 'data/videos.json'), 'utf-8'));
@@ -35,7 +36,7 @@ function videoSlug(video) {
 }
 
 function videoPath(video) {
-  return `/${video.restaurantSlug}/${videoSlug(video)}/`;
+  return `${BASE_PATH}${video.restaurantSlug}/${videoSlug(video)}/`;
 }
 
 function escapeXml(str) {
@@ -61,7 +62,7 @@ function generateVideoSitemap() {
     return `  <url>
     <loc>${escapeXml(url)}</loc>
     <video:video>
-      <video:thumbnail_loc>${escapeXml(SITE_URL + video.thumbnailUrl)}</video:thumbnail_loc>
+      <video:thumbnail_loc>${escapeXml(video.thumbnailUrl.startsWith('http') ? video.thumbnailUrl : SITE_URL + (video.thumbnailUrl.startsWith('/') ? BASE_PATH + video.thumbnailUrl.slice(1) : BASE_PATH + video.thumbnailUrl))}</video:thumbnail_loc>
       <video:title>${escapeXml(title)}</video:title>
       <video:description>${escapeXml(video.caption)}</video:description>
       <video:content_loc>${escapeXml(video.embedUrl)}</video:content_loc>
@@ -90,7 +91,7 @@ function generateImageSitemap() {
   const entries = videos.map((video) => {
     const restaurant = restaurants[video.restaurantSlug];
     const url = `${SITE_URL}${videoPath(video)}`;
-    const imageUrl = `${SITE_URL}${video.thumbnailUrl}`;
+    const imageUrl = video.thumbnailUrl.startsWith('http') ? video.thumbnailUrl : `${SITE_URL}${BASE_PATH}${video.thumbnailUrl.startsWith('/') ? video.thumbnailUrl.slice(1) : video.thumbnailUrl}`;
     const caption = restaurant
       ? `${restaurant.name} food review photo`
       : `Restaurant review photo`;

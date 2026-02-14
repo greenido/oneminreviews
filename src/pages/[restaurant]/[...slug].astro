@@ -17,7 +17,11 @@ import {
   cityPath,
   cuisinePath,
   generateFAQs,
+  hasGoogleData,
   hasYelpData,
+  getGoogleReviews,
+  tiktokWatchUrl,
+  tiktokEmbedUrl,
   type Video,
   type Restaurant,
 } from '../../lib/data';
@@ -62,6 +66,10 @@ const sameCuisineVideos = getVideosByCuisine(video.cuisine)
 
 const restaurants = getRestaurants();
 
+// Google Places data (shown as supplementary venue info when available)
+const showGoogleData = hasGoogleData(restaurant);
+const googleReviews = getGoogleReviews(restaurant);
+
 // FAQ
 const faqs = generateFAQs(restaurant, video);
 
@@ -75,8 +83,13 @@ const reviewDate = new Date(video.createTime * 1000).toLocaleDateString('en-US',
 const isoDate = new Date(video.createTime * 1000).toISOString();
 
 // SEO
+const base = import.meta.env.BASE_URL;
+// Resolve thumbnail URL: prepend base for local paths
+const resolvedThumbnail = video.thumbnailUrl.startsWith('http') ? video.thumbnailUrl : (video.thumbnailUrl.startsWith('/') && !video.thumbnailUrl.startsWith(base) ? base + video.thumbnailUrl.slice(1) : video.thumbnailUrl);
+
 const pageTitle = `${restaurant.name} Review — Honest TikTok Food Review`;
-const pageDescription = `Watch @oneminreviews' honest one-minute review of ${restaurant.name} in ${video.city}. ${restaurant.google?.rating ? `Rated ${restaurant.google.rating}/5 on Google.` : ''} ${video.caption.slice(0, 100)}`;
+const googleRatingBlurb = showGoogleData ? `Rated ${restaurant.google.rating}/5 on Google. ` : '';
+const pageDescription = `Watch @oneminreviews' honest one-minute review of ${restaurant.name} in ${video.city}. ${googleRatingBlurb}${video.caption.slice(0, 120)}`;
 
 // JSON-LD (will be expanded in Phase 1.4)
 const jsonLd = [
@@ -85,10 +98,10 @@ const jsonLd = [
     '@type': 'VideoObject',
     name: `${restaurant.name} Review by @oneminreviews`,
     description: video.caption,
-    thumbnailUrl: video.thumbnailUrl,
+    thumbnailUrl: resolvedThumbnail,
     uploadDate: isoDate,
-    contentUrl: video.embedUrl,
-    embedUrl: video.embedUrl,
+    contentUrl: tiktokWatchUrl(video.videoId),
+    embedUrl: tiktokEmbedUrl(video.videoId),
     interactionStatistic: [
       {
         '@type': 'InteractionCounter',
@@ -118,25 +131,28 @@ const jsonLd = [
       longitude: restaurant.lng,
     },
     servesCuisine: restaurant.cuisine,
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: restaurant.google?.rating ?? 0,
-      reviewCount:
-        (restaurant.google?.reviewCount ?? 0) + (hasYelpData(restaurant) ? (restaurant.yelp?.reviewCount ?? 0) : 0),
-      bestRating: 5,
-      worstRating: 1,
-    },
-    review: restaurant.reviews.map((r) => ({
-      '@type': 'Review',
-      author: { '@type': 'Person', name: r.author },
-      reviewRating: {
-        '@type': 'Rating',
-        ratingValue: r.rating,
+    ...(showGoogleData ? {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: restaurant.google.rating,
+        reviewCount: restaurant.google.reviewCount,
         bestRating: 5,
+        worstRating: 1,
       },
-      reviewBody: r.text,
-      datePublished: r.date,
-    })),
+    } : {}),
+    ...(googleReviews.length > 0 ? {
+      review: googleReviews.map((r) => ({
+        '@type': 'Review',
+        author: { '@type': 'Person', name: r.author },
+        reviewRating: {
+          '@type': 'Rating',
+          ratingValue: r.rating,
+          bestRating: 5,
+        },
+        reviewBody: r.text,
+        datePublished: r.date,
+      })),
+    } : {}),
   },
   {
     '@context': 'https://schema.org',
@@ -157,10 +173,10 @@ const jsonLd = [
   title={pageTitle}
   description={pageDescription}
   canonicalUrl={videoPath(video)}
-  ogImage={video.thumbnailUrl}
+  ogImage={resolvedThumbnail}
   ogType="video.other"
   jsonLd={jsonLd}
-  preloadImage={video.thumbnailUrl}
+  preloadImage={resolvedThumbnail}
 >
   <article class="video-page">
     <div class="container">
@@ -188,7 +204,7 @@ const jsonLd = [
       <div class="video-page__content">
         <!-- Left: Video -->
         <div class="video-page__video">
-          <TikTokEmbed videoId={video.videoId} embedUrl={video.embedUrl} />
+          <TikTokEmbed videoId={video.videoId} embedUrl={video.embedUrl} thumbnailUrl={resolvedThumbnail} />
           <div class="video-page__engagement">
             <span>&#10084; {video.stats.likes.toLocaleString()} likes</span>
             <span>&#128172; {video.stats.comments.toLocaleString()} comments</span>
@@ -202,22 +218,16 @@ const jsonLd = [
             <h2>{restaurant.name}</h2>
             <p class="restaurant-card__address">{restaurant.address}</p>
 
-            <div class="restaurant-card__ratings">
-              {restaurant.google && (
+            {showGoogleData && (
+              <div class="restaurant-card__venue-rating">
+                <span class="restaurant-card__venue-label">Google Places</span>
                 <StarRating
                   rating={restaurant.google.rating}
                   reviewCount={restaurant.google.reviewCount}
                   source="google"
                 />
-              )}
-              {hasYelpData(restaurant) && (
-                <StarRating
-                  rating={restaurant.yelp!.rating}
-                  reviewCount={restaurant.yelp!.reviewCount}
-                  source="yelp"
-                />
-              )}
-            </div>
+              </div>
+            )}
 
             <div class="restaurant-card__details">
               <div class="restaurant-card__detail">
@@ -230,15 +240,15 @@ const jsonLd = [
               </div>
             </div>
 
-            {hasYelpData(restaurant) && restaurant.yelp?.url && (
+            {showGoogleData && restaurant.google.placeId && (
               <a
-                href={restaurant.yelp.url}
+                href={`https://www.google.com/maps/place/?q=place_id:${restaurant.google.placeId}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 class="btn btn--outline"
                 style="width: 100%; justify-content: center; margin-top: var(--space-md);"
               >
-                View on Yelp
+                View on Google Maps
               </a>
             )}
           </div>
@@ -251,14 +261,15 @@ const jsonLd = [
         <p>{video.caption}</p>
       </section>
 
-      <!-- Reviews -->
-      {restaurant.reviews.filter((r) => r.source !== 'yelp' || hasYelpData(restaurant)).length > 0 && (
+      <!-- Google Reviews (supplementary venue data) -->
+      {googleReviews.length > 0 && (
         <section class="video-page__reviews">
-          <h2>What Customers Are Saying</h2>
+          <h2>What Google Reviewers Are Saying</h2>
+          <p class="reviews-attribution">
+            Reviews sourced from Google Places to give you extra context alongside our @oneminreviews video.
+          </p>
           <div class="reviews-grid">
-            {restaurant.reviews
-              .filter((r) => r.source !== 'yelp' || hasYelpData(restaurant))
-              .map((review) => (
+            {googleReviews.map((review) => (
               <ReviewSnippet
                 source={review.source}
                 author={review.author}
@@ -289,7 +300,6 @@ const jsonLd = [
                   caption={v.caption}
                   city={v.city}
                   cuisine={v.cuisine}
-                  rating={r?.google?.rating}
                   thumbnailUrl={v.thumbnailUrl}
                   stats={v.stats}
                 />
@@ -314,7 +324,6 @@ const jsonLd = [
                   caption={v.caption}
                   city={v.city}
                   cuisine={v.cuisine}
-                  rating={r?.google?.rating}
                   thumbnailUrl={v.thumbnailUrl}
                   stats={v.stats}
                 />
@@ -344,7 +353,6 @@ const jsonLd = [
                   caption={v.caption}
                   city={v.city}
                   cuisine={v.cuisine}
-                  rating={r?.google?.rating}
                   thumbnailUrl={v.thumbnailUrl}
                   stats={v.stats}
                 />
@@ -446,6 +454,22 @@ const jsonLd = [
     border-bottom: 1px solid var(--color-border);
   }
 
+  .restaurant-card__venue-rating {
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .restaurant-card__venue-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-dim);
+    margin-bottom: var(--space-xs);
+  }
+
   .restaurant-card__details {
     display: flex;
     flex-direction: column;
@@ -475,6 +499,13 @@ const jsonLd = [
   .video-page__reviews h2,
   .video-page__related h2 {
     margin-bottom: var(--space-lg);
+  }
+
+  .reviews-attribution {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-lg);
+    font-style: italic;
   }
 
   .reviews-grid {

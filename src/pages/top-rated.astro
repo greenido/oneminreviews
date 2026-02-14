@@ -1,7 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
 import VideoCard from '../components/VideoCard.astro';
-import StarRating from '../components/StarRating.astro';
 import {
   getRestaurants,
   getTopRated,
@@ -9,12 +8,7 @@ import {
   getCuisines,
   cityPath,
   cuisinePath,
-  ratingsSourceLabel,
-  siteHasYelpData,
 } from '../lib/data';
-
-const ratingsSources = ratingsSourceLabel();
-const hasYelp = siteHasYelpData();
 
 const restaurants = getRestaurants();
 const topRated = getTopRated(50);
@@ -22,21 +16,23 @@ const cities = getCities();
 const cuisines = getCuisines();
 
 const description =
-  `The highest rated restaurants reviewed by @oneminreviews, ranked by ${ratingsSources} ratings. Watch honest one-minute video reviews of the best food in America.`;
+  `The top restaurants reviewed by @oneminreviews, ranked by audience engagement. Watch honest one-minute video reviews of the best food in America.`;
+
+const siteBase = `${Astro.site?.origin ?? 'https://greenido.github.io'}${import.meta.env.BASE_URL}`;
 
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
   name: 'Top Rated Restaurant Reviews',
   description,
-  url: 'https://oneminreviews.com/top-rated/',
+  url: `${siteBase}top-rated/`,
 };
 ---
 
 <Base
   title="Top Rated Restaurants — Best of @oneminreviews"
   description={description}
-  canonicalUrl="/top-rated/"
+  canonicalUrl={`${import.meta.env.BASE_URL}top-rated/`}
   jsonLd={jsonLd}
 >
   <section class="section">
@@ -44,8 +40,8 @@ const jsonLd = {
       <header class="section__header">
         <h1>Top Rated Restaurant Reviews</h1>
         <p class="section__subtitle">
-          The highest rated restaurants from our video reviews, ranked by aggregate {ratingsSources}
-          ratings. Every review is one minute of honest, unsponsored opinion.
+          The most popular restaurants from our video reviews, ranked by audience engagement.
+          Every review is one minute of honest, unsponsored opinion by @oneminreviews.
         </p>
       </header>
 
@@ -79,7 +75,6 @@ const jsonLd = {
             caption={video.caption}
             city={video.city}
             cuisine={video.cuisine}
-            rating={restaurant.google?.rating}
             thumbnailUrl={video.thumbnailUrl}
             stats={video.stats}
             rank={index + 1}
@@ -90,10 +85,10 @@ const jsonLd = {
       <div class="seo-block" style="margin-top: var(--space-3xl);">
         <h2>How We Rank Restaurants</h2>
         <p>
-          Our rankings combine real {ratingsSources} ratings with the unfiltered video reviews
-          from @oneminreviews. We don't accept sponsored content or paid placements — every
-          ranking is based on genuine customer feedback and our reviewer's honest assessment.
-          Restaurants are sorted by their Google aggregate rating{hasYelp ? ', with Yelp data providing additional context' : ''}.
+          Our rankings are based on audience engagement with @oneminreviews video reviews.
+          We don't accept sponsored content or paid placements — every ranking reflects
+          genuine viewer reactions to our reviewer's honest, one-minute assessments.
+          The more likes a review gets, the higher it ranks.
         </p>
       </div>
     </div>
