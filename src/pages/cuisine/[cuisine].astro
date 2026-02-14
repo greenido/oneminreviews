@@ -1,0 +1,146 @@
+---
+import Base from '../../layouts/Base.astro';
+import VideoCard from '../../components/VideoCard.astro';
+import {
+  getVideos,
+  getRestaurants,
+  getCuisines,
+  getVideosByCuisine,
+  cuisineSlug,
+  cuisinePath,
+  cityPath,
+  type Video,
+} from '../../lib/data';
+
+export function getStaticPaths() {
+  const cuisines = getCuisines();
+  return cuisines.map((cuisine) => ({
+    params: { cuisine: cuisineSlug(cuisine) },
+    props: { cuisineName: cuisine },
+  }));
+}
+
+interface Props {
+  cuisineName: string;
+}
+
+const { cuisineName } = Astro.props;
+const videos = getVideosByCuisine(cuisineName);
+const restaurants = getRestaurants();
+
+// Get unique cities for this cuisine
+const cities = [...new Set(videos.map((v) => v.city))].sort();
+
+const description = `The best ${cuisineName.toLowerCase()} restaurants reviewed by @oneminreviews. Watch honest one-minute video reviews with Google and Yelp ratings.`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: `${cuisineName} Restaurant Reviews`,
+  description,
+  url: `https://oneminreviews.com${cuisinePath(cuisineName)}`,
+};
+---
+
+<Base
+  title={`Best ${cuisineName} Restaurants — Honest Video Reviews`}
+  description={description}
+  canonicalUrl={cuisinePath(cuisineName)}
+  jsonLd={jsonLd}
+>
+  <section class="section">
+    <div class="container">
+      <header class="section__header">
+        <h1>Best {cuisineName} Restaurant Reviews</h1>
+        <p class="section__subtitle">
+          {videos.length} honest one-minute {cuisineName.toLowerCase()} restaurant reviews.
+          Find the best {cuisineName.toLowerCase()} food across {cities.join(', ')}.
+        </p>
+      </header>
+
+      <!-- City filters within this cuisine -->
+      {cities.length > 1 && (
+        <div class="filter-tags" style="margin-bottom: var(--space-2xl);">
+          {cities.map((city) => (
+            <a href={cityPath(city)} class="tag tag--city tag--clickable">{city}</a>
+          ))}
+        </div>
+      )}
+
+      <div class="grid grid--3">
+        {videos.map((video) => {
+          const r = restaurants[video.restaurantSlug];
+          return (
+            <VideoCard
+              videoId={video.videoId}
+              restaurantName={r?.name ?? video.restaurantSlug}
+              restaurantSlug={video.restaurantSlug}
+              caption={video.caption}
+              city={video.city}
+              cuisine={video.cuisine}
+              rating={r?.google?.rating}
+              thumbnailUrl={video.thumbnailUrl}
+              stats={video.stats}
+            />
+          );
+        })}
+      </div>
+
+      <div class="seo-block" style="margin-top: var(--space-3xl);">
+        <h2>About {cuisineName} Reviews</h2>
+        <p>
+          Looking for the best {cuisineName.toLowerCase()} restaurants? Our video reviews cover
+          top-rated {cuisineName.toLowerCase()} spots across the US, each reviewed in an honest
+          one-minute format by @oneminreviews. Every listing includes aggregate ratings from
+          Google and Yelp, customer review snippets, and location details.
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .filter-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  .tag--clickable {
+    cursor: pointer;
+    transition: transform 0.15s ease;
+    text-decoration: none;
+  }
+
+  .tag--clickable:hover {
+    transform: translateY(-1px);
+  }
+
+  .seo-block h2 {
+    margin-bottom: var(--space-md);
+  }
+
+  .seo-block p {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    max-width: 700px;
+  }
+
+  @media (max-width: 768px) {
+    .filter-tags {
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: var(--space-sm);
+    }
+
+    .filter-tags::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-tags .tag {
+      flex-shrink: 0;
+    }
+  }
+</style>

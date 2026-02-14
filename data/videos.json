@@ -1,0 +1,112 @@
+[
+  {
+    "videoId": "7312456789012",
+    "caption": "Is Prince Street Pizza worth the hype? The spicy spring pepperoni square is absolutely legendary 🍕 #nyc #pizza #foodreview #oneminreview",
+    "createTime": 1706400000,
+    "thumbnailUrl": "/assets/images/7312456789012/frame-1.jpg",
+    "embedUrl": "https://www.tiktok.com/@oneminreviews/video/7312456789012",
+    "restaurantSlug": "prince-street-pizza",
+    "city": "New York",
+    "cuisine": "Pizza",
+    "stats": { "likes": 45200, "comments": 1230, "shares": 890 }
+  },
+  {
+    "videoId": "7298765432101",
+    "caption": "Joe's Pizza in the Village — the classic NYC slice that never disappoints. Thin, crispy, perfect fold 🍕 #nyc #joespizza #foodreview",
+    "createTime": 1705800000,
+    "thumbnailUrl": "/assets/images/7298765432101/frame-1.jpg",
+    "embedUrl": "https://www.tiktok.com/@oneminreviews/video/7298765432101",
+    "restaurantSlug": "joes-pizza",
+    "city": "New York",
+    "cuisine": "Pizza",
+    "stats": { "likes": 38100, "comments": 980, "shares": 650 }
+  },
+  {
+    "videoId": "7301234567890",
+    "caption": "Tatiana in Brighton Beach — the most underrated restaurant in NYC. Georgian-Russian fusion that blew my mind 🥟 #nyc #tatiana #foodreview",
+    "createTime": 1706000000,
+    "thumbnailUrl": "/assets/images/7301234567890/frame-1.jpg",
+    "embedUrl": "https://www.tiktok.com/@oneminreviews/video/7301234567890",
+    "restaurantSlug": "tatiana-restaurant",
+    "city": "New York",
+    "cuisine": "Russian",
+    "stats": { "likes": 29400, "comments": 720, "shares": 430 }
+  },
+  {
+    "videoId": "7287654321098",
+    "caption": "Langer's Deli has the best pastrami sandwich in LA, maybe the entire country. #19 is perfection 🥪 #la #losangeles #foodreview",
+    "createTime": 1705200000,
+    "thumbnailUrl": "/assets/images/7287654321098/frame-1.jpg",
+    "embedUrl": "https://www.tiktok.com/@oneminreviews/video/7287654321098",
+    "restaurantSlug": "langers-deli",
+    "city": "Los Angeles",
+    "cuisine": "Deli",
+    "stats": { "likes": 52300, "comments": 1540, "shares": 1120 }
+  },
+  {
+    "videoId": "7276543210987",
+    "caption": "Pizzana in Brentwood — Neapolitan pizza done right in LA. The cacio e pepe pizza is insane 🍕 #la #pizza #foodreview",
+    "createTime": 1704600000,
+    "thumbnailUrl": "/assets/images/7276543210987/frame-1.jpg",
+    "embedUrl": "https://www.tiktok.com/@oneminreviews/video/7276543210987",
+    "restaurantSlug": "pizzana",
+    "city": "Los Angeles",
+    "cuisine": "Pizza",
+    "stats": { "likes": 31700, "comments": 870, "shares": 520 }
+  },
+  {
+    "videoId": "7265432109876",
+    "caption": "Bavel in the Arts District — Middle Eastern food that earned every award. The lamb neck shawarma is life-changing 🧆 #la #bavel #foodreview",
+    "createTime": 1704000000,
+    "thumbnailUrl": "/assets/images/7265432109876/frame-1.jpg",
+    "embedUrl": "https://www.tiktok.com/@oneminreviews/video/7265432109876",
+    "restaurantSlug": "bavel",
+    "city": "Los Angeles",
+    "cuisine": "Middle Eastern",
+    "stats": { "likes": 41800, "comments": 1100, "shares": 780 }
+  },
+  {
+    "videoId": "7254321098765",
+    "caption": "Portillo's in Chicago — the Italian beef sandwich that defines the city. Dipped with hot giardiniera, no debate 🌭 #chicago #portillos #foodreview",
+    "createTime": 1703400000,
+    "thumbnailUrl": "/assets/images/7254321098765/frame-1.jpg",
+    "embedUrl": "https://www.tiktok.com/@oneminreviews/video/7254321098765",
+    "restaurantSlug": "portillos",
+    "city": "Chicago",
+    "cuisine": "American",
+    "stats": { "likes": 67500, "comments": 2100, "shares": 1580 }
+  },
+  {
+    "videoId": "7243210987654",
+    "caption": "Lou Malnati's deep dish — the butter crust is what sets it apart. This is peak Chicago pizza 🍕 #chicago #deepdish #foodreview",
+    "createTime": 1702800000,
+    "thumbnailUrl": "/assets/images/7243210987654/frame-1.jpg",
+    "embedUrl": "https://www.tiktok.com/@oneminreviews/video/7243210987654",
+    "restaurantSlug": "lou-malnatis",
+    "city": "Chicago",
+    "cuisine": "Pizza",
+    "stats": { "likes": 55200, "comments": 1800, "shares": 1340 }
+  },
+  {
+    "videoId": "7232109876543",
+    "caption": "Franklin Barbecue in Austin — waited 4 hours but the brisket was worth every minute. Bark so good it's criminal 🥩 #austin #bbq #foodreview",
+    "createTime": 1702200000,
+    "thumbnailUrl": "/assets/images/7232109876543/frame-1.jpg",
+    "embedUrl": "https://www.tiktok.com/@oneminreviews/video/7232109876543",
+    "restaurantSlug": "franklin-barbecue",
+    "city": "Austin",
+    "cuisine": "BBQ",
+    "stats": { "likes": 89100, "comments": 3200, "shares": 2450 }
+  },
+  {
+    "videoId": "7221098765432",
+    "caption": "Superiority Burger in East Village — the best veggie burger in NYC and it's not even close 🍔 #nyc #vegan #foodreview",
+    "createTime": 1701600000,
+    "thumbnailUrl": "/assets/images/7221098765432/frame-1.jpg",
+    "embedUrl": "https://www.tiktok.com/@oneminreviews/video/7221098765432",
+    "restaurantSlug": "superiority-burger",
+    "city": "New York",
+    "cuisine": "Vegetarian",
+    "stats": { "likes": 27600, "comments": 640, "shares": 380 }
+  }
+]

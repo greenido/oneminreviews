@@ -1,0 +1,173 @@
+---
+import Base from '../layouts/Base.astro';
+import VideoCard from '../components/VideoCard.astro';
+import StarRating from '../components/StarRating.astro';
+import {
+  getRestaurants,
+  getTopRated,
+  getCities,
+  getCuisines,
+  cityPath,
+  cuisinePath,
+} from '../lib/data';
+
+const restaurants = getRestaurants();
+const topRated = getTopRated(50);
+const cities = getCities();
+const cuisines = getCuisines();
+
+const description =
+  'The highest rated restaurants reviewed by @oneminreviews, ranked by Google and Yelp ratings. Watch honest one-minute video reviews of the best food in America.';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Top Rated Restaurant Reviews',
+  description,
+  url: 'https://oneminreviews.com/top-rated/',
+};
+---
+
+<Base
+  title="Top Rated Restaurants — Best of @oneminreviews"
+  description={description}
+  canonicalUrl="/top-rated/"
+  jsonLd={jsonLd}
+>
+  <section class="section">
+    <div class="container">
+      <header class="section__header">
+        <h1>Top Rated Restaurant Reviews</h1>
+        <p class="section__subtitle">
+          The highest rated restaurants from our video reviews, ranked by aggregate Google
+          and Yelp ratings. Every review is one minute of honest, unsponsored opinion.
+        </p>
+      </header>
+
+      <!-- Quick filters -->
+      <div class="filter-row">
+        <div class="filter-group">
+          <span class="filter-label">Cities:</span>
+          <div class="filter-tags">
+            {cities.map((city) => (
+              <a href={cityPath(city)} class="tag tag--city tag--clickable">{city}</a>
+            ))}
+          </div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Cuisines:</span>
+          <div class="filter-tags">
+            {cuisines.map((cuisine) => (
+              <a href={cuisinePath(cuisine)} class="tag tag--cuisine tag--clickable">{cuisine}</a>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <!-- Ranked grid -->
+      <div class="grid grid--3" style="margin-top: var(--space-2xl);">
+        {topRated.map(({ video, restaurant }, index) => (
+          <VideoCard
+            videoId={video.videoId}
+            restaurantName={restaurant.name}
+            restaurantSlug={restaurant.slug}
+            caption={video.caption}
+            city={video.city}
+            cuisine={video.cuisine}
+            rating={restaurant.google?.rating}
+            thumbnailUrl={video.thumbnailUrl}
+            stats={video.stats}
+            rank={index + 1}
+          />
+        ))}
+      </div>
+
+      <div class="seo-block" style="margin-top: var(--space-3xl);">
+        <h2>How We Rank Restaurants</h2>
+        <p>
+          Our rankings combine real Google and Yelp ratings with the unfiltered video reviews
+          from @oneminreviews. We don't accept sponsored content or paid placements — every
+          ranking is based on genuine customer feedback and our reviewer's honest assessment.
+          Restaurants are sorted by their Google aggregate rating, with Yelp data providing
+          additional context.
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .filter-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .filter-group {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md);
+  }
+
+  .filter-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    padding-top: 4px;
+  }
+
+  .filter-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  .tag--clickable {
+    cursor: pointer;
+    transition: transform 0.15s ease;
+    text-decoration: none;
+  }
+
+  .tag--clickable:hover {
+    transform: translateY(-1px);
+  }
+
+  .seo-block h2 {
+    margin-bottom: var(--space-md);
+  }
+
+  .seo-block p {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    max-width: 700px;
+  }
+
+  @media (max-width: 768px) {
+    .filter-group {
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .filter-tags {
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: var(--space-sm);
+    }
+
+    .filter-tags::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-tags .tag {
+      flex-shrink: 0;
+    }
+
+    .ranked-card__rank {
+      font-size: 0.7rem;
+      padding: 3px 8px;
+    }
+  }
+</style>

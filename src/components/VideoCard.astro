@@ -1,0 +1,153 @@
+---
+export interface Props {
+  videoId: string;
+  restaurantName: string;
+  restaurantSlug: string;
+  caption: string;
+  city: string;
+  cuisine: string;
+  rating?: number;
+  thumbnailUrl: string;
+  stats: { likes: number; comments: number; shares: number };
+  rank?: number;
+}
+
+const {
+  videoId,
+  restaurantName,
+  restaurantSlug,
+  caption,
+  city,
+  cuisine,
+  rating,
+  thumbnailUrl,
+  stats,
+  rank,
+} = Astro.props;
+
+const slug = caption
+  .toLowerCase()
+  .replace(/[^a-z0-9\s-]/g, '')
+  .replace(/\s+/g, '-')
+  .slice(0, 50)
+  .replace(/-$/, '');
+
+const href = `/${restaurantSlug}/${slug}-${videoId}/`;
+
+function formatNumber(n: number): string {
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+  return n.toString();
+}
+---
+
+<article class="card video-card">
+  <a href={href} aria-label={`Review of ${restaurantName}`}>
+    <div class="video-card__thumb">
+      <img
+        src={thumbnailUrl}
+        alt={`${restaurantName} food review thumbnail`}
+        class="card__image"
+        loading="lazy"
+        width="270"
+        height="480"
+        onerror="this.style.display='none'"
+      />
+      <div class="video-card__overlay">
+        <span class="video-card__play">&#9654;</span>
+      </div>
+    </div>
+  </a>
+  <div class="card__body">
+    <a href={href} class="card__title-link">
+      {rank && <span class="card__rank">#{rank}</span>}
+      <h3 class="card__title">{restaurantName}</h3>
+    </a>
+    <div class="card__meta">
+      {rating && (
+        <span class="stars" aria-label={`${rating} out of 5 stars`}>
+          {'★'.repeat(Math.round(rating))}{'☆'.repeat(5 - Math.round(rating))}
+          <span>{rating.toFixed(1)}</span>
+        </span>
+      )}
+    </div>
+    <div class="card__meta" style="margin-top: 6px;">
+      <span class="tag tag--city">{city}</span>
+      <span class="tag tag--cuisine">{cuisine}</span>
+    </div>
+    <div class="card__meta video-card__stats" style="margin-top: 8px;">
+      <span title="Likes">&#10084; {formatNumber(stats.likes)}</span>
+      <span title="Comments">&#128172; {formatNumber(stats.comments)}</span>
+      <span title="Shares">&#8618; {formatNumber(stats.shares)}</span>
+    </div>
+  </div>
+</article>
+
+<style>
+  .video-card__thumb {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .video-card__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .video-card:hover .video-card__overlay {
+    opacity: 1;
+  }
+
+  .video-card__play {
+    font-size: 2.5rem;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  }
+
+  .card__title-link {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm, 0.5rem);
+  }
+
+  .card__rank {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-accent, #ff3b5c);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm, 6px);
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+
+  .video-card__stats {
+    font-size: 0.8rem;
+  }
+
+  .video-card__stats span {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  @media (max-width: 768px) {
+    .video-card__play {
+      font-size: 1.8rem;
+    }
+
+    .video-card__stats {
+      font-size: 0.72rem;
+    }
+  }
+</style>

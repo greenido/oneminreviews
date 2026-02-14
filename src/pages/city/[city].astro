@@ -1,0 +1,147 @@
+---
+import Base from '../../layouts/Base.astro';
+import VideoCard from '../../components/VideoCard.astro';
+import {
+  getVideos,
+  getRestaurants,
+  getCities,
+  getVideosByCity,
+  citySlug,
+  cityPath,
+  cuisinePath,
+  type Video,
+} from '../../lib/data';
+
+export function getStaticPaths() {
+  const cities = getCities();
+  return cities.map((city) => ({
+    params: { city: citySlug(city) },
+    props: { cityName: city },
+  }));
+}
+
+interface Props {
+  cityName: string;
+}
+
+const { cityName } = Astro.props;
+const videos = getVideosByCity(cityName);
+const restaurants = getRestaurants();
+
+// Get unique cuisines for this city
+const cuisines = [...new Set(videos.map((v) => v.cuisine))].sort();
+
+const description = `Discover the best restaurants in ${cityName} with honest one-minute video reviews by @oneminreviews. Ratings from Google and Yelp included.`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: `${cityName} Restaurant Reviews`,
+  description,
+  url: `https://oneminreviews.com${cityPath(cityName)}`,
+};
+---
+
+<Base
+  title={`Best Restaurants in ${cityName} — Honest Video Reviews`}
+  description={description}
+  canonicalUrl={cityPath(cityName)}
+  jsonLd={jsonLd}
+>
+  <section class="section">
+    <div class="container">
+      <header class="section__header">
+        <h1>Restaurant Reviews in {cityName}</h1>
+        <p class="section__subtitle">
+          {videos.length} honest one-minute reviews of the best restaurants in {cityName}.
+          Watch real food reviews with ratings from Google and Yelp.
+        </p>
+      </header>
+
+      <!-- Cuisine filters within this city -->
+      {cuisines.length > 1 && (
+        <div class="filter-tags" style="margin-bottom: var(--space-2xl);">
+          {cuisines.map((cuisine) => (
+            <a href={cuisinePath(cuisine)} class="tag tag--cuisine tag--clickable">{cuisine}</a>
+          ))}
+        </div>
+      )}
+
+      <div class="grid grid--3">
+        {videos.map((video) => {
+          const r = restaurants[video.restaurantSlug];
+          return (
+            <VideoCard
+              videoId={video.videoId}
+              restaurantName={r?.name ?? video.restaurantSlug}
+              restaurantSlug={video.restaurantSlug}
+              caption={video.caption}
+              city={video.city}
+              cuisine={video.cuisine}
+              rating={r?.google?.rating}
+              thumbnailUrl={video.thumbnailUrl}
+              stats={video.stats}
+            />
+          );
+        })}
+      </div>
+
+      <!-- SEO content -->
+      <div class="seo-block" style="margin-top: var(--space-3xl);">
+        <h2>About {cityName} Restaurant Reviews</h2>
+        <p>
+          Our {cityName} restaurant reviews feature honest, unsponsored video content from
+          @oneminreviews on TikTok. Each review is exactly one minute — no filler, just real
+          opinions about the food, the vibe, and whether it's worth your money. We enrich
+          every review with aggregate ratings from Google and Yelp so you get the full picture.
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .filter-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  .tag--clickable {
+    cursor: pointer;
+    transition: transform 0.15s ease;
+    text-decoration: none;
+  }
+
+  .tag--clickable:hover {
+    transform: translateY(-1px);
+  }
+
+  .seo-block h2 {
+    margin-bottom: var(--space-md);
+  }
+
+  .seo-block p {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    max-width: 700px;
+  }
+
+  @media (max-width: 768px) {
+    .filter-tags {
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: var(--space-sm);
+    }
+
+    .filter-tags::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-tags .tag {
+      flex-shrink: 0;
+    }
+  }
+</style>

@@ -1,0 +1,314 @@
+---
+export interface Props {
+  videoId: string;
+  embedUrl: string;
+}
+
+const { videoId, embedUrl } = Astro.props;
+const iframeSrc = `https://www.tiktok.com/embed/v2/${videoId}`;
+---
+
+<div class="tiktok-embed-wrapper" data-video-id={videoId} data-iframe-src={iframeSrc} data-embed-url={embedUrl}>
+  <div class="tiktok-embed__placeholder" id={`tiktok-${videoId}`}>
+    <button class="tiktok-embed__load-btn" aria-label="Load TikTok video">
+      <span class="tiktok-embed__play">&#9654;</span>
+      <span>Load TikTok Video</span>
+    </button>
+    <a
+      class="tiktok-embed__direct-link"
+      href={embedUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Watch this video on TikTok"
+    >
+      Or watch directly on TikTok &rarr;
+    </a>
+  </div>
+</div>
+
+<script>
+  function initTikTokEmbeds() {
+    document.querySelectorAll('.tiktok-embed-wrapper[data-video-id]').forEach((wrapper) => {
+      const videoId = wrapper.getAttribute('data-video-id');
+      const iframeSrc = wrapper.getAttribute('data-iframe-src');
+      const embedUrl = wrapper.getAttribute('data-embed-url');
+      if (!videoId || !iframeSrc || !embedUrl) return;
+
+      // Skip if already initialised
+      if (wrapper.hasAttribute('data-init')) return;
+      wrapper.setAttribute('data-init', 'true');
+
+      const btn = wrapper.querySelector('.tiktok-embed__load-btn');
+      if (!btn) return;
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+
+          btn.addEventListener('click', () => {
+            const placeholder = wrapper.querySelector('.tiktok-embed__placeholder');
+            if (!placeholder) return;
+
+            // Replace placeholder with the iframe directly
+            placeholder.innerHTML = `
+              <div class="tiktok-embed__loading">
+                <div class="tiktok-embed__spinner"></div>
+                <span>Loading TikTok video&hellip;</span>
+              </div>
+              <iframe
+                class="tiktok-embed__iframe"
+                src="${iframeSrc}"
+                allowfullscreen
+                allow="encrypted-media"
+                style="opacity: 0;"
+              ></iframe>
+            `;
+
+            const iframe = placeholder.querySelector('iframe');
+            const loader = placeholder.querySelector('.tiktok-embed__loading');
+            let settled = false;
+
+            const showFallback = () => {
+              if (settled) return;
+              settled = true;
+              placeholder.innerHTML = `
+                <div class="tiktok-embed__fallback">
+                  <span class="tiktok-embed__fallback-icon">&#127909;</span>
+                  <p class="tiktok-embed__fallback-title">Couldn&rsquo;t load the video</p>
+                  <p class="tiktok-embed__fallback-sub">The TikTok player may be blocked by your browser or an ad-blocker.</p>
+                  <a class="tiktok-embed__watch-btn" href="${embedUrl}" target="_blank" rel="noopener noreferrer">
+                    Watch on TikTok &rarr;
+                  </a>
+                  <button class="tiktok-embed__retry-btn">Try loading again</button>
+                </div>
+              `;
+              const retryBtn = placeholder.querySelector('.tiktok-embed__retry-btn');
+              if (retryBtn) {
+                retryBtn.addEventListener('click', () => {
+                  wrapper.removeAttribute('data-init');
+                  placeholder.innerHTML = `
+                    <button class="tiktok-embed__load-btn" aria-label="Load TikTok video">
+                      <span class="tiktok-embed__play">&#9654;</span>
+                      <span>Load TikTok Video</span>
+                    </button>
+                    <a class="tiktok-embed__direct-link" href="${embedUrl}" target="_blank" rel="noopener noreferrer">
+                      Or watch directly on TikTok &rarr;
+                    </a>
+                  `;
+                  initTikTokEmbeds();
+                }, { once: true });
+              }
+            };
+
+            // When iframe loads successfully, reveal it and hide spinner
+            if (iframe) {
+              iframe.addEventListener('load', () => {
+                if (settled) return;
+                settled = true;
+                iframe.style.opacity = '1';
+                if (loader) loader.remove();
+              });
+
+              iframe.addEventListener('error', () => {
+                showFallback();
+              });
+            }
+
+            // Timeout: if iframe hasn't loaded in 10s, show fallback
+            setTimeout(() => {
+              if (!settled) showFallback();
+            }, 10000);
+
+          }, { once: true });
+
+          observer.disconnect();
+        });
+      }, { rootMargin: '200px' });
+
+      observer.observe(wrapper);
+    });
+  }
+
+  // Run on initial load and on Astro page navigations (View Transitions)
+  document.addEventListener('DOMContentLoaded', initTikTokEmbeds);
+  document.addEventListener('astro:page-load', initTikTokEmbeds);
+</script>
+
+<style>
+  .tiktok-embed-wrapper {
+    max-width: 605px;
+    min-height: 400px;
+  }
+
+  .tiktok-embed__placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ---------- Iframe ---------- */
+  .tiktok-embed__iframe {
+    width: 100%;
+    min-height: 740px;
+    border: none;
+    border-radius: var(--radius-md);
+    transition: opacity 0.3s ease;
+  }
+
+  /* ---------- Load button ---------- */
+  .tiktok-embed__load-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-lg) var(--space-xl);
+    background: var(--color-accent-dim);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-md);
+    color: var(--color-accent);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .tiktok-embed__load-btn:hover {
+    background: var(--color-accent);
+    color: #fff;
+  }
+
+  .tiktok-embed__play {
+    font-size: 2rem;
+  }
+
+  /* ---------- Direct link under the button ---------- */
+  .tiktok-embed__direct-link {
+    margin-top: var(--space-md);
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.2s ease;
+  }
+
+  .tiktok-embed__direct-link:hover {
+    color: var(--color-accent);
+  }
+
+  /* ---------- Loading state ---------- */
+  .tiktok-embed__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+  }
+
+  .tiktok-embed__spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-accent);
+    border-radius: 50%;
+    animation: tt-spin 0.7s linear infinite;
+  }
+
+  @keyframes tt-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ---------- Fallback state ---------- */
+  .tiktok-embed__fallback {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+    text-align: center;
+    padding: var(--space-xl);
+  }
+
+  .tiktok-embed__fallback-icon {
+    font-size: 2.5rem;
+  }
+
+  .tiktok-embed__fallback-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+
+  .tiktok-embed__fallback-sub {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    max-width: 300px;
+  }
+
+  .tiktok-embed__watch-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    margin-top: var(--space-sm);
+    padding: var(--space-sm) var(--space-lg);
+    background: var(--color-accent);
+    color: #fff;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .tiktok-embed__watch-btn:hover {
+    opacity: 0.85;
+  }
+
+  .tiktok-embed__retry-btn {
+    margin-top: var(--space-xs);
+    padding: var(--space-xs) var(--space-md);
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+  }
+
+  .tiktok-embed__retry-btn:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  @media (max-width: 768px) {
+    .tiktok-embed-wrapper {
+      max-width: 100%;
+    }
+
+    .tiktok-embed__placeholder {
+      min-height: 320px;
+    }
+
+    .tiktok-embed__load-btn {
+      padding: var(--space-md) var(--space-lg);
+      font-size: 0.95rem;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .tiktok-embed__iframe {
+      min-height: 580px;
+    }
+  }
+</style>

@@ -1,0 +1,538 @@
+---
+import Base from '../../layouts/Base.astro';
+import TikTokEmbed from '../../components/TikTokEmbed.astro';
+import StarRating from '../../components/StarRating.astro';
+import ReviewSnippet from '../../components/ReviewSnippet.astro';
+import FAQ from '../../components/FAQ.astro';
+import VideoCard from '../../components/VideoCard.astro';
+import {
+  getVideos,
+  getRestaurants,
+  getRestaurant,
+  getVideosByRestaurant,
+  getVideosByCity,
+  getVideosByCuisine,
+  videoSlug,
+  videoPath,
+  cityPath,
+  cuisinePath,
+  generateFAQs,
+  type Video,
+  type Restaurant,
+} from '../../lib/data';
+
+export function getStaticPaths() {
+  const videos = getVideos();
+  const restaurants = getRestaurants();
+
+  return videos.map((video) => {
+    const restaurant = restaurants[video.restaurantSlug];
+    const slug = videoSlug(video);
+    return {
+      params: {
+        restaurant: video.restaurantSlug,
+        slug,
+      },
+      props: {
+        video,
+        restaurant,
+      },
+    };
+  });
+}
+
+interface Props {
+  video: Video;
+  restaurant: Restaurant;
+}
+
+const { video, restaurant } = Astro.props;
+
+// Related content
+const sameRestaurantVideos = getVideosByRestaurant(restaurant.slug).filter(
+  (v) => v.videoId !== video.videoId
+);
+const sameCityVideos = getVideosByCity(video.city)
+  .filter((v) => v.videoId !== video.videoId)
+  .slice(0, 4);
+const sameCuisineVideos = getVideosByCuisine(video.cuisine)
+  .filter((v) => v.videoId !== video.videoId)
+  .slice(0, 4);
+
+const restaurants = getRestaurants();
+
+// FAQ
+const faqs = generateFAQs(restaurant, video);
+
+// Date formatting
+const reviewDate = new Date(video.createTime * 1000).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+const isoDate = new Date(video.createTime * 1000).toISOString();
+
+// SEO
+const pageTitle = `${restaurant.name} Review — Honest TikTok Food Review`;
+const pageDescription = `Watch @oneminreviews' honest one-minute review of ${restaurant.name} in ${video.city}. ${restaurant.google?.rating ? `Rated ${restaurant.google.rating}/5 on Google.` : ''} ${video.caption.slice(0, 100)}`;
+
+// JSON-LD (will be expanded in Phase 1.4)
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name: `${restaurant.name} Review by @oneminreviews`,
+    description: video.caption,
+    thumbnailUrl: video.thumbnailUrl,
+    uploadDate: isoDate,
+    contentUrl: video.embedUrl,
+    embedUrl: video.embedUrl,
+    interactionStatistic: [
+      {
+        '@type': 'InteractionCounter',
+        interactionType: 'https://schema.org/LikeAction',
+        userInteractionCount: video.stats.likes,
+      },
+      {
+        '@type': 'InteractionCounter',
+        interactionType: 'https://schema.org/CommentAction',
+        userInteractionCount: video.stats.comments,
+      },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Restaurant',
+    name: restaurant.name,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: restaurant.address,
+      addressLocality: restaurant.city,
+      addressRegion: restaurant.state,
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: restaurant.lat,
+      longitude: restaurant.lng,
+    },
+    servesCuisine: restaurant.cuisine,
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: restaurant.google?.rating ?? 0,
+      reviewCount:
+        (restaurant.google?.reviewCount ?? 0) + (restaurant.yelp?.reviewCount ?? 0),
+      bestRating: 5,
+      worstRating: 1,
+    },
+    review: restaurant.reviews.map((r) => ({
+      '@type': 'Review',
+      author: { '@type': 'Person', name: r.author },
+      reviewRating: {
+        '@type': 'Rating',
+        ratingValue: r.rating,
+        bestRating: 5,
+      },
+      reviewBody: r.text,
+      datePublished: r.date,
+    })),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  },
+];
+---
+
+<Base
+  title={pageTitle}
+  description={pageDescription}
+  canonicalUrl={videoPath(video)}
+  ogImage={video.thumbnailUrl}
+  ogType="video.other"
+  jsonLd={jsonLd}
+  preloadImage={video.thumbnailUrl}
+>
+  <article class="video-page">
+    <div class="container">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol>
+          <li><a href="/">Home</a></li>
+          <li><a href={cityPath(video.city)}>{video.city}</a></li>
+          <li><a href={cuisinePath(video.cuisine)}>{video.cuisine}</a></li>
+          <li aria-current="page">{restaurant.name}</li>
+        </ol>
+      </nav>
+
+      <!-- Header -->
+      <header class="video-page__header">
+        <h1>{restaurant.name} — Honest One-Minute Review</h1>
+        <div class="video-page__meta">
+          <time datetime={isoDate}>{reviewDate}</time>
+          <span class="tag tag--city">{video.city}</span>
+          <span class="tag tag--cuisine">{video.cuisine}</span>
+        </div>
+      </header>
+
+      <!-- Two-column layout -->
+      <div class="video-page__content">
+        <!-- Left: Video -->
+        <div class="video-page__video">
+          <TikTokEmbed videoId={video.videoId} embedUrl={video.embedUrl} />
+          <div class="video-page__engagement">
+            <span>&#10084; {video.stats.likes.toLocaleString()} likes</span>
+            <span>&#128172; {video.stats.comments.toLocaleString()} comments</span>
+            <span>&#8618; {video.stats.shares.toLocaleString()} shares</span>
+          </div>
+        </div>
+
+        <!-- Right: Restaurant Info -->
+        <aside class="video-page__sidebar">
+          <div class="restaurant-card">
+            <h2>{restaurant.name}</h2>
+            <p class="restaurant-card__address">{restaurant.address}</p>
+
+            <div class="restaurant-card__ratings">
+              {restaurant.google && (
+                <StarRating
+                  rating={restaurant.google.rating}
+                  reviewCount={restaurant.google.reviewCount}
+                  source="google"
+                />
+              )}
+              {restaurant.yelp && (
+                <StarRating
+                  rating={restaurant.yelp.rating}
+                  reviewCount={restaurant.yelp.reviewCount}
+                  source="yelp"
+                />
+              )}
+            </div>
+
+            <div class="restaurant-card__details">
+              <div class="restaurant-card__detail">
+                <strong>Cuisine</strong>
+                <a href={cuisinePath(video.cuisine)}>{restaurant.cuisine}</a>
+              </div>
+              <div class="restaurant-card__detail">
+                <strong>City</strong>
+                <a href={cityPath(video.city)}>{restaurant.city}, {restaurant.state}</a>
+              </div>
+            </div>
+
+            {restaurant.yelp?.url && (
+              <a
+                href={restaurant.yelp.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn--outline"
+                style="width: 100%; justify-content: center; margin-top: var(--space-md);"
+              >
+                View on Yelp
+              </a>
+            )}
+          </div>
+        </aside>
+      </div>
+
+      <!-- Caption -->
+      <section class="video-page__caption">
+        <h2>About This Review</h2>
+        <p>{video.caption}</p>
+      </section>
+
+      <!-- Reviews -->
+      {restaurant.reviews.length > 0 && (
+        <section class="video-page__reviews">
+          <h2>What Customers Are Saying</h2>
+          <div class="reviews-grid">
+            {restaurant.reviews.map((review) => (
+              <ReviewSnippet
+                source={review.source}
+                author={review.author}
+                rating={review.rating}
+                text={review.text}
+                date={review.date}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <!-- FAQ -->
+      <FAQ items={faqs} />
+
+      <!-- Same Restaurant -->
+      {sameRestaurantVideos.length > 0 && (
+        <section class="video-page__related">
+          <h2>More Reviews of {restaurant.name}</h2>
+          <div class="grid grid--3">
+            {sameRestaurantVideos.map((v) => {
+              const r = restaurants[v.restaurantSlug];
+              return (
+                <VideoCard
+                  videoId={v.videoId}
+                  restaurantName={r?.name ?? v.restaurantSlug}
+                  restaurantSlug={v.restaurantSlug}
+                  caption={v.caption}
+                  city={v.city}
+                  cuisine={v.cuisine}
+                  rating={r?.google?.rating}
+                  thumbnailUrl={v.thumbnailUrl}
+                  stats={v.stats}
+                />
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      <!-- Same City -->
+      {sameCityVideos.length > 0 && (
+        <section class="video-page__related">
+          <h2>More Reviews in {video.city}</h2>
+          <div class="grid grid--4">
+            {sameCityVideos.map((v) => {
+              const r = restaurants[v.restaurantSlug];
+              return (
+                <VideoCard
+                  videoId={v.videoId}
+                  restaurantName={r?.name ?? v.restaurantSlug}
+                  restaurantSlug={v.restaurantSlug}
+                  caption={v.caption}
+                  city={v.city}
+                  cuisine={v.cuisine}
+                  rating={r?.google?.rating}
+                  thumbnailUrl={v.thumbnailUrl}
+                  stats={v.stats}
+                />
+              );
+            })}
+          </div>
+          <div style="margin-top: var(--space-lg);">
+            <a href={cityPath(video.city)} class="btn btn--outline">
+              All {video.city} Reviews &rarr;
+            </a>
+          </div>
+        </section>
+      )}
+
+      <!-- Same Cuisine -->
+      {sameCuisineVideos.length > 0 && (
+        <section class="video-page__related">
+          <h2>More {video.cuisine} Reviews</h2>
+          <div class="grid grid--4">
+            {sameCuisineVideos.map((v) => {
+              const r = restaurants[v.restaurantSlug];
+              return (
+                <VideoCard
+                  videoId={v.videoId}
+                  restaurantName={r?.name ?? v.restaurantSlug}
+                  restaurantSlug={v.restaurantSlug}
+                  caption={v.caption}
+                  city={v.city}
+                  cuisine={v.cuisine}
+                  rating={r?.google?.rating}
+                  thumbnailUrl={v.thumbnailUrl}
+                  stats={v.stats}
+                />
+              );
+            })}
+          </div>
+          <div style="margin-top: var(--space-lg);">
+            <a href={cuisinePath(video.cuisine)} class="btn btn--outline">
+              All {video.cuisine} Reviews &rarr;
+            </a>
+          </div>
+        </section>
+      )}
+    </div>
+  </article>
+</Base>
+
+<style>
+  .breadcrumb ol {
+    display: flex;
+    gap: var(--space-sm);
+    list-style: none;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    padding: var(--space-lg) 0;
+  }
+
+  .breadcrumb li:not(:last-child)::after {
+    content: '/';
+    margin-left: var(--space-sm);
+    color: var(--color-text-dim);
+  }
+
+  .breadcrumb a {
+    color: var(--color-text-muted);
+  }
+
+  .breadcrumb a:hover {
+    color: var(--color-accent);
+  }
+
+  .video-page__header {
+    margin-bottom: var(--space-2xl);
+  }
+
+  .video-page__header h1 {
+    margin-bottom: var(--space-sm);
+  }
+
+  .video-page__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+
+  .video-page__content {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: var(--space-2xl);
+    margin-bottom: var(--space-2xl);
+  }
+
+  .video-page__engagement {
+    display: flex;
+    gap: var(--space-lg);
+    margin-top: var(--space-md);
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+  }
+
+  /* Restaurant sidebar card */
+  .restaurant-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-xl);
+    position: sticky;
+    top: 80px;
+  }
+
+  .restaurant-card h2 {
+    font-size: 1.3rem;
+    margin-bottom: var(--space-xs);
+  }
+
+  .restaurant-card__address {
+    font-size: 0.9rem;
+    margin-bottom: var(--space-lg);
+  }
+
+  .restaurant-card__ratings {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .restaurant-card__details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .restaurant-card__detail {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+  }
+
+  .restaurant-card__detail strong {
+    color: var(--color-text-muted);
+  }
+
+  /* Sections */
+  .video-page__caption,
+  .video-page__reviews,
+  .video-page__related {
+    margin-top: var(--space-2xl);
+    padding-top: var(--space-2xl);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .video-page__caption h2,
+  .video-page__reviews h2,
+  .video-page__related h2 {
+    margin-bottom: var(--space-lg);
+  }
+
+  .reviews-grid {
+    display: grid;
+    gap: var(--space-md);
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+
+  @media (max-width: 900px) {
+    .video-page__content {
+      grid-template-columns: 1fr;
+    }
+
+    .restaurant-card {
+      position: static;
+    }
+  }
+
+  @media (max-width: 768px) {
+    /* Breadcrumb: allow wrapping */
+    .breadcrumb ol {
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      font-size: 0.8rem;
+      padding: var(--space-md) 0;
+    }
+
+    /* Header meta: wrap tags */
+    .video-page__meta {
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      font-size: 0.85rem;
+    }
+
+    /* Engagement: wrap on small screens */
+    .video-page__engagement {
+      flex-wrap: wrap;
+      gap: var(--space-sm) var(--space-md);
+      font-size: 0.85rem;
+    }
+
+    /* Sidebar card: reduce padding */
+    .restaurant-card {
+      padding: var(--space-lg);
+    }
+
+    /* Reviews grid: single column */
+    .reviews-grid {
+      grid-template-columns: 1fr;
+    }
+
+    /* Section spacing: tighter */
+    .video-page__caption,
+    .video-page__reviews,
+    .video-page__related {
+      margin-top: var(--space-lg);
+      padding-top: var(--space-lg);
+    }
+
+    .video-page__header h1 {
+      font-size: clamp(1.3rem, 5vw, 1.75rem);
+    }
+  }
+</style>

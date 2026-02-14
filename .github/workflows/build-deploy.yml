@@ -1,0 +1,150 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Weekly refresh: Sunday 6am UTC
+    - cron: '0 6 * * 0'
+  workflow_dispatch:
+    inputs:
+      run_scraper:
+        description: 'Run TikTok scraper'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['true', 'false']
+      run_media:
+        description: 'Run media processing'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['true', 'false']
+      run_enrich:
+        description: 'Run restaurant enrichment'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['true', 'false']
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ---- Cache data and assets across runs ----
+      - name: Cache data files
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/
+            assets/images/
+          key: data-${{ runner.os }}-${{ hashFiles('data/*.json') }}
+          restore-keys: |
+            data-${{ runner.os }}-
+
+      # ---- TikTok Scraper ----
+      - name: Install Chromium
+        if: >
+          github.event_name == 'schedule' ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.run_scraper == 'true')
+        run: npx puppeteer browsers install chrome
+
+      - name: Scrape TikTok
+        if: >
+          github.event_name == 'schedule' ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.run_scraper == 'true')
+        run: npm run scrape
+        env:
+          PROXY_URL: ${{ secrets.PROXY_URL }}
+          SCRAPE_MAX: '50'
+        continue-on-error: true
+
+      # ---- FFmpeg Media Processing ----
+      - name: Install FFmpeg
+        if: >
+          github.event_name == 'schedule' ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.run_media == 'true')
+        uses: FedericoCarboni/setup-ffmpeg@v3
+
+      - name: Process Media
+        if: >
+          github.event_name == 'schedule' ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.run_media == 'true')
+        run: npm run process-media
+        continue-on-error: true
+
+      # ---- Restaurant Enrichment ----
+      - name: Enrich Restaurants
+        if: >
+          github.event_name == 'schedule' ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.run_enrich == 'true')
+        run: npm run enrich
+        env:
+          GOOGLE_PLACES_KEY: ${{ secrets.GOOGLE_PLACES_KEY }}
+          YELP_API_KEY: ${{ secrets.YELP_API_KEY }}
+        continue-on-error: true
+
+      # ---- Generate OG Images ----
+      - name: Generate OG Images
+        run: npm run generate-og
+        continue-on-error: true
+
+      # ---- Commit updated data back to repo ----
+      - name: Commit data updates
+        if: >
+          github.event_name == 'schedule' ||
+          github.event_name == 'workflow_dispatch'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/ assets/images/
+          git diff --cached --quiet || git commit -m "chore: update scraped data and assets [skip ci]"
+          git push || true
+
+      # ---- Build Static Site ----
+      - name: Build Astro
+        run: npm run build
+
+      - name: Generate Video & Image Sitemaps
+        run: npm run generate-sitemaps
+
+      # ---- Deploy ----
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,30 @@
+{
+  "name": "oneminreviews",
+  "type": "module",
+  "version": "2.0.0",
+  "description": "The Canonical Restaurant Video Archive — @oneminreviews",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "scrape": "node scripts/scrape-tiktok.js",
+    "enrich": "node scripts/enrich-restaurants.js",
+    "process-media": "node scripts/process-media.js",
+    "generate-og": "node scripts/generate-og-images.js",
+    "generate-sitemaps": "node scripts/generate-sitemaps.js",
+    "pipeline": "npm run scrape && npm run process-media && npm run enrich && npm run generate-og && npm run build && npm run generate-sitemaps"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.0",
+    "astro": "^5.17.1",
+    "sharp": "^0.34.5"
+  },
+  "devDependencies": {
+    "compromise": "^14.14.5",
+    "fluent-ffmpeg": "^2.1.3",
+    "puppeteer": "^24.37.3",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "_comment": "Manual overrides for restaurant name extraction. Key is videoId, value is the correct restaurantSlug.",
+  "overrides": {}
+}

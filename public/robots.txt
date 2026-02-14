@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://oneminreviews.com/sitemap-index.xml
+Sitemap: https://oneminreviews.com/video-sitemap.xml
+Sitemap: https://oneminreviews.com/image-sitemap.xml

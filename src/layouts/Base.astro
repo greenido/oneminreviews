@@ -1,0 +1,175 @@
+---
+import '../styles/global.css';
+
+export interface Props {
+  title: string;
+  description: string;
+  canonicalUrl?: string;
+  ogImage?: string;
+  ogType?: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  preloadImage?: string;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  canonicalUrl,
+  ogImage = '/og-default.jpg',
+  ogType = 'website',
+  jsonLd,
+  preloadImage,
+  noindex = false,
+} = Astro.props;
+
+const siteUrl = 'https://oneminreviews.com';
+const fullCanonical = canonicalUrl ? `${siteUrl}${canonicalUrl}` : Astro.url.href;
+const fullOgImage = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
+const fullTitle = title.includes('OneMinReviews') ? title : `${title} | OneMinReviews`;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Primary Meta -->
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={fullCanonical} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={fullOgImage} />
+    <meta property="og:url" content={fullCanonical} />
+    <meta property="og:site_name" content="OneMinReviews" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={fullOgImage} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Preload hero image if provided -->
+    {preloadImage && (
+      <link rel="preload" as="image" href={preloadImage} />
+    )}
+
+    <!-- JSON-LD Structured Data -->
+    {jsonLd && (
+      <script
+        type="application/ld+json"
+        set:html={JSON.stringify(
+          Array.isArray(jsonLd) ? jsonLd : jsonLd,
+          null,
+          0
+        )}
+      />
+    )}
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    />
+
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://www.tiktok.com" />
+    <link rel="dns-prefetch" href="https://www.tiktok.com" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a href="/" class="site-header__logo">
+          One<span>Min</span>Reviews
+        </a>
+        <button class="site-header__burger" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="site-header__nav-wrapper" id="nav-menu">
+          <ul class="site-header__nav">
+            <li><a href="/">Home</a></li>
+            <li><a href="/top-rated/">Top Rated</a></li>
+            <li><a href="/city/new-york/">Cities</a></li>
+            <li><a href="/cuisine/pizza/">Cuisines</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Back to top button -->
+    <button class="back-to-top" id="back-to-top" aria-label="Back to top" title="Back to top">
+      &#8593;
+    </button>
+
+    <script>
+      // Mobile nav toggle
+      function initNav() {
+        const toggle = document.getElementById('nav-toggle');
+        const menu = document.getElementById('nav-menu');
+        if (!toggle || !menu) return;
+
+        toggle.addEventListener('click', () => {
+          const isOpen = menu.classList.toggle('is-open');
+          toggle.classList.toggle('is-open', isOpen);
+          toggle.setAttribute('aria-expanded', String(isOpen));
+        });
+
+        // Close menu on link click
+        menu.querySelectorAll('a').forEach((link) => {
+          link.addEventListener('click', () => {
+            menu.classList.remove('is-open');
+            toggle.classList.remove('is-open');
+            toggle.setAttribute('aria-expanded', 'false');
+          });
+        });
+      }
+
+      // Back to top
+      function initBackToTop() {
+        const btn = document.getElementById('back-to-top');
+        if (!btn) return;
+
+        const onScroll = () => {
+          btn.classList.toggle('is-visible', window.scrollY > 600);
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+
+        btn.addEventListener('click', () => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', () => { initNav(); initBackToTop(); });
+      document.addEventListener('astro:page-load', () => { initNav(); initBackToTop(); });
+    </script>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <p class="site-footer__copy">
+          &copy; {new Date().getFullYear()} OneMinReviews. An archive of <a href="https://www.tiktok.com/@oneminreviews" target="_blank" rel="noopener">@oneminreviews</a> content.
+        </p>
+        <ul class="site-footer__links">
+          <li><a href="/top-rated/">Top Rated</a></li>
+          <li><a href="/sitemap.xml">Sitemap</a></li>
+        </ul>
+      </div>
+    </footer>
+  </body>
+</html>

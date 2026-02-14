@@ -1,0 +1,61 @@
+---
+export interface Props {
+  rating: number;
+  reviewCount?: number;
+  source?: 'google' | 'yelp';
+  size?: 'sm' | 'md' | 'lg';
+}
+
+const { rating, reviewCount, source, size = 'md' } = Astro.props;
+const full = Math.floor(rating);
+const hasHalf = rating - full >= 0.3 && rating - full < 0.8;
+const empty = 5 - full - (hasHalf ? 1 : 0);
+---
+
+<div class={`star-rating star-rating--${size}`}>
+  {source && (
+    <span class={`star-rating__source star-rating__source--${source}`}>
+      {source === 'google' ? 'Google' : 'Yelp'}
+    </span>
+  )}
+  <span class="stars" aria-label={`${rating} out of 5 stars`}>
+    {'★'.repeat(full)}{hasHalf ? '⯪' : ''}{'☆'.repeat(empty)}
+  </span>
+  <span class="star-rating__value">{rating.toFixed(1)}</span>
+  {reviewCount && (
+    <span class="star-rating__count">({reviewCount.toLocaleString()} reviews)</span>
+  )}
+</div>
+
+<style>
+  .star-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .star-rating--sm { font-size: 0.8rem; }
+  .star-rating--md { font-size: 0.95rem; }
+  .star-rating--lg { font-size: 1.1rem; }
+
+  .star-rating__source {
+    font-weight: 700;
+    font-size: 0.8em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .star-rating__source--google { color: var(--color-google); }
+  .star-rating__source--yelp { color: var(--color-yelp); }
+
+  .star-rating__value {
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  .star-rating__count {
+    color: var(--color-text-muted);
+    font-size: 0.85em;
+  }
+</style>

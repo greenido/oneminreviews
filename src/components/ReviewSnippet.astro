@@ -1,0 +1,87 @@
+---
+export interface Props {
+  source: 'google' | 'yelp';
+  author: string;
+  rating: number;
+  text: string;
+  date: string;
+}
+
+const { source, author, rating, text, date } = Astro.props;
+const formattedDate = new Date(date).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+});
+---
+
+<blockquote class={`review-snippet review-snippet--${source}`}>
+  <div class="review-snippet__header">
+    <span class={`review-snippet__source review-snippet__source--${source}`}>
+      {source === 'google' ? 'Google' : 'Yelp'}
+    </span>
+    <span class="stars" aria-label={`${rating} out of 5 stars`}>
+      {'★'.repeat(rating)}{'☆'.repeat(5 - rating)}
+    </span>
+  </div>
+  <p class="review-snippet__text">&ldquo;{text}&rdquo;</p>
+  <footer class="review-snippet__footer">
+    <cite class="review-snippet__author">{author}</cite>
+    <time class="review-snippet__date" datetime={date}>{formattedDate}</time>
+  </footer>
+</blockquote>
+
+<style>
+  .review-snippet {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    border-left: 3px solid var(--color-border-light);
+  }
+
+  .review-snippet--google {
+    border-left-color: var(--color-google);
+  }
+
+  .review-snippet--yelp {
+    border-left-color: var(--color-yelp);
+  }
+
+  .review-snippet__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  .review-snippet__source {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .review-snippet__source--google { color: var(--color-google); }
+  .review-snippet__source--yelp { color: var(--color-yelp); }
+
+  .review-snippet__text {
+    font-style: italic;
+    color: var(--color-text);
+    margin-bottom: var(--space-sm);
+    line-height: 1.5;
+  }
+
+  .review-snippet__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+
+  .review-snippet__author {
+    font-weight: 600;
+    font-style: normal;
+  }
+</style>

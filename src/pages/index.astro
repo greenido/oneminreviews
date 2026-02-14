@@ -1,0 +1,309 @@
+---
+import Base from '../layouts/Base.astro';
+import VideoCard from '../components/VideoCard.astro';
+import StarRating from '../components/StarRating.astro';
+import {
+  getVideos,
+  getRestaurants,
+  getTopRated,
+  getLatestVideos,
+  getCities,
+  getCuisines,
+  cityPath,
+  cuisinePath,
+  type Video,
+  type Restaurant,
+} from '../lib/data';
+
+const videos = getVideos();
+const restaurants = getRestaurants();
+const topRated = getTopRated(6);
+const latest = getLatestVideos(6);
+const cities = getCities();
+const cuisines = getCuisines();
+
+const description =
+  'Honest, one-minute restaurant reviews by @oneminreviews. Watch real food reviews with ratings from Google and Yelp. Discover the best restaurants in NYC, LA, Chicago, Austin and more.';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'OneMinReviews',
+  url: 'https://oneminreviews.com',
+  description,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: 'https://oneminreviews.com/?q={search_term_string}',
+    'query-input': 'required name=search_term_string',
+  },
+};
+---
+
+<Base
+  title="Honest Restaurant Reviews by @oneminreviews — OneMinReviews"
+  description={description}
+  jsonLd={jsonLd}
+>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <h1 class="hero__title">
+        Honest Restaurant Reviews<br />
+        by <span class="hero__accent">@oneminreviews</span>
+      </h1>
+      <p class="hero__subtitle">
+        Real food. Real opinions. One minute each. We archive every review with ratings from
+        Google and Yelp so you can find the best restaurants near you — no algorithms, no
+        sponsored content, just the truth.
+      </p>
+      <div class="hero__stats">
+        <div class="hero__stat">
+          <span class="hero__stat-number">{videos.length}</span>
+          <span class="hero__stat-label">Reviews</span>
+        </div>
+        <div class="hero__stat">
+          <span class="hero__stat-number">{Object.keys(restaurants).length}</span>
+          <span class="hero__stat-label">Restaurants</span>
+        </div>
+        <div class="hero__stat">
+          <span class="hero__stat-number">{cities.length}</span>
+          <span class="hero__stat-label">Cities</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- City Filters -->
+  <section class="section">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title">Browse by City</h2>
+        <p class="section__subtitle">Explore restaurant reviews across major cities</p>
+      </div>
+      <div class="filter-tags">
+        {cities.map((city) => (
+          <a href={cityPath(city)} class="tag tag--city tag--clickable">{city}</a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Cuisine Filters -->
+  <section class="section" style="padding-top: 0;">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title">Browse by Cuisine</h2>
+        <p class="section__subtitle">Find reviews by food type</p>
+      </div>
+      <div class="filter-tags">
+        {cuisines.map((cuisine) => (
+          <a href={cuisinePath(cuisine)} class="tag tag--cuisine tag--clickable">{cuisine}</a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Top Rated -->
+  <section class="section" style="padding-top: 0;">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title">Top Rated Restaurants</h2>
+        <p class="section__subtitle">The highest rated spots from our reviews</p>
+      </div>
+      <div class="grid grid--3">
+        {topRated.map(({ video, restaurant }) => (
+          <VideoCard
+            videoId={video.videoId}
+            restaurantName={restaurant.name}
+            restaurantSlug={restaurant.slug}
+            caption={video.caption}
+            city={video.city}
+            cuisine={video.cuisine}
+            rating={restaurant.google?.rating}
+            thumbnailUrl={video.thumbnailUrl}
+            stats={video.stats}
+          />
+        ))}
+      </div>
+      <div style="text-align: center; margin-top: var(--space-xl);">
+        <a href="/top-rated/" class="btn btn--outline">View All Top Rated</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Latest Reviews -->
+  <section class="section">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title">Latest Reviews</h2>
+        <p class="section__subtitle">The most recent one-minute reviews</p>
+      </div>
+      <div class="grid grid--3">
+        {latest.map((video) => {
+          const r = restaurants[video.restaurantSlug];
+          return (
+            <VideoCard
+              videoId={video.videoId}
+              restaurantName={r?.name ?? video.restaurantSlug}
+              restaurantSlug={video.restaurantSlug}
+              caption={video.caption}
+              city={video.city}
+              cuisine={video.cuisine}
+              rating={r?.google?.rating}
+              thumbnailUrl={video.thumbnailUrl}
+              stats={video.stats}
+            />
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- SEO Content Block -->
+  <section class="section seo-content">
+    <div class="container container--narrow">
+      <h2>About OneMinReviews</h2>
+      <p>
+        OneMinReviews is the definitive archive of <strong>@oneminreviews</strong> TikTok content.
+        Every video is enriched with real restaurant data from Google and Yelp, giving you
+        ratings, review snippets, and location info — all in one place.
+      </p>
+      <p>
+        Unlike other review aggregators, we focus on short-form, honest video content. Each
+        restaurant review is exactly one minute — no filler, no sponsorships, just real food
+        opinions you can trust. Whether you're looking for the best pizza in New York, the
+        top BBQ in Austin, or hidden gems in Los Angeles, we've got you covered.
+      </p>
+      <p>
+        Our mission: turn ephemeral TikTok content into a permanent, searchable restaurant
+        guide that helps you eat better, wherever you are.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* Hero */
+  .hero {
+    padding: var(--space-3xl) 0;
+    text-align: center;
+    background: linear-gradient(180deg, rgba(255, 59, 92, 0.06) 0%, transparent 100%);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .hero__title {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: var(--space-lg);
+  }
+
+  .hero__accent {
+    color: var(--color-accent);
+  }
+
+  .hero__subtitle {
+    max-width: 640px;
+    margin: 0 auto var(--space-2xl);
+    font-size: 1.1rem;
+    color: var(--color-text-muted);
+    line-height: 1.7;
+  }
+
+  .hero__stats {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-3xl);
+  }
+
+  .hero__stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero__stat-number {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--color-text);
+  }
+
+  .hero__stat-label {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* Filter Tags */
+  .filter-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  .tag--clickable {
+    cursor: pointer;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+    text-decoration: none;
+  }
+
+  .tag--clickable:hover {
+    transform: translateY(-1px);
+    opacity: 0.85;
+  }
+
+  /* SEO Content */
+  .seo-content {
+    border-top: 1px solid var(--color-border);
+  }
+
+  .seo-content h2 {
+    margin-bottom: var(--space-lg);
+  }
+
+  .seo-content p {
+    font-size: 1.05rem;
+    line-height: 1.8;
+  }
+
+  /* Filter tags: horizontal scroll on mobile */
+  @media (max-width: 768px) {
+    .hero {
+      padding: var(--space-2xl) 0;
+    }
+
+    .hero__title {
+      font-size: clamp(1.6rem, 6vw, 2.5rem);
+    }
+
+    .hero__subtitle {
+      font-size: 1rem;
+      padding: 0 var(--space-sm);
+    }
+
+    .hero__stats {
+      gap: var(--space-lg);
+    }
+
+    .hero__stat-number {
+      font-size: 1.5rem;
+    }
+
+    .filter-tags {
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: var(--space-sm);
+    }
+
+    .filter-tags::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-tags .tag {
+      flex-shrink: 0;
+    }
+  }
+</style>
