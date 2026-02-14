@@ -101,7 +101,7 @@ function formatNumber(n: number): string {
               class="video-card__embed-iframe"
               allowfullscreen
               allow="encrypted-media"
-              style="opacity: 0;"
+              style="opacity: 0; position: absolute; inset: 0; width: 100%; height: 100%; border: none;"
             ></iframe>
             <button class="video-card__close-btn" aria-label="Close video">&times;</button>
           </div>
@@ -153,7 +153,7 @@ function formatNumber(n: number): string {
     aspect-ratio: 9 / 16;
     min-height: 480px;
     border-radius: var(--radius-md, 12px) var(--radius-md, 12px) 0 0;
-    overflow: visible;
+    overflow: hidden;
   }
 
   .video-card__overlay {
@@ -179,12 +179,15 @@ function formatNumber(n: number): string {
 
   /* ---------- Inline embed ---------- */
   .video-card__embed-wrap {
-    position: relative;
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
   }
 
   .video-card__embed-iframe {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     border: none;
@@ -195,12 +198,14 @@ function formatNumber(n: number): string {
   .video-card__embed-loading {
     position: absolute;
     inset: 0;
+    width: 100%;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     background: var(--color-surface, #1a1a2e);
     border-radius: var(--radius-md, 12px) var(--radius-md, 12px) 0 0;
-    z-index: 1;
+    z-index: 2;
   }
 
   .video-card__spinner {
@@ -231,7 +236,7 @@ function formatNumber(n: number): string {
     border-radius: 50%;
     font-size: 1.2rem;
     cursor: pointer;
-    z-index: 10;
+    z-index: 20;
     transition: background 0.2s ease;
   }
 
