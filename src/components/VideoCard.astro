@@ -1,5 +1,5 @@
 ---
-import { slugify, resolveThumbnail } from '../lib/data';
+import { slugify, resolveThumbnail, PLACEHOLDER_THUMBNAIL } from '../lib/data';
 
 export interface Props {
   videoId: string;
@@ -34,8 +34,8 @@ const href = `${base}${restaurantSlug}/${captionSlug}-${videoId}/`;
 const safeThumbnail = resolveThumbnail(thumbnailUrl);
 const resolvedThumbnail = safeThumbnail.startsWith('http') ? safeThumbnail : (safeThumbnail.startsWith('/') && !safeThumbnail.startsWith(base) ? base + safeThumbnail.slice(1) : safeThumbnail);
 
-// Only show the video thumbnail if we have a real TikTok thumbnail (remote URL)
-const hasRealThumbnail = thumbnailUrl.startsWith('http');
+// Only show the video thumbnail if we have a real image (not the placeholder)
+const hasRealThumbnail = safeThumbnail !== PLACEHOLDER_THUMBNAIL;
 
 function formatNumber(n: number): string {
   if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';

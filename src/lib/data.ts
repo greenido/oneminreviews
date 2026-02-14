@@ -173,7 +173,7 @@ export function cuisinePath(cuisine: string): string {
 
 // ---------- Thumbnail Helpers ----------
 
-const PLACEHOLDER_THUMBNAIL = '/assets/images/placeholder.svg';
+export const PLACEHOLDER_THUMBNAIL = '/assets/images/placeholder.svg';
 
 /**
  * Resolve a thumbnailUrl to a usable value.
