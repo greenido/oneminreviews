@@ -152,7 +152,7 @@ export function videoSlug(video: Video): string {
 }
 
 export function videoPath(video: Video): string {
-  return `/${video.restaurantSlug}/${videoSlug(video)}/`;
+  return `${import.meta.env.BASE_URL}${video.restaurantSlug}/${videoSlug(video)}/`;
 }
 
 export function citySlug(city: string): string {
@@ -160,7 +160,7 @@ export function citySlug(city: string): string {
 }
 
 export function cityPath(city: string): string {
-  return `/city/${citySlug(city)}/`;
+  return `${import.meta.env.BASE_URL}city/${citySlug(city)}/`;
 }
 
 export function cuisineSlug(cuisine: string): string {
@@ -168,7 +168,7 @@ export function cuisineSlug(cuisine: string): string {
 }
 
 export function cuisinePath(cuisine: string): string {
-  return `/cuisine/${cuisineSlug(cuisine)}/`;
+  return `${import.meta.env.BASE_URL}cuisine/${cuisineSlug(cuisine)}/`;
 }
 
 // ---------- FAQ Generator ----------

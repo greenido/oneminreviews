@@ -23,7 +23,8 @@ const {
   noindex = false,
 } = Astro.props;
 
-const siteUrl = 'https://oneminreviews.com';
+const base = import.meta.env.BASE_URL;
+const siteUrl = Astro.site?.origin ?? 'https://greenido.github.io';
 const fullCanonical = canonicalUrl ? `${siteUrl}${canonicalUrl}` : Astro.url.href;
 const fullOgImage = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
 const fullTitle = title.includes('OneMinReviews') ? title : `${title} | OneMinReviews`;
@@ -57,7 +58,7 @@ const fullTitle = title.includes('OneMinReviews') ? title : `${title} | OneMinRe
     <meta name="twitter:image" content={fullOgImage} />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
 
     <!-- Preload hero image if provided -->
     {preloadImage && (
@@ -91,7 +92,7 @@ const fullTitle = title.includes('OneMinReviews') ? title : `${title} | OneMinRe
   <body>
     <header class="site-header">
       <div class="container site-header__inner">
-        <a href="/" class="site-header__logo">
+        <a href={base} class="site-header__logo">
           One<span>Min</span>Reviews
         </a>
         <button class="site-header__burger" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
@@ -99,10 +100,10 @@ const fullTitle = title.includes('OneMinReviews') ? title : `${title} | OneMinRe
         </button>
         <nav class="site-header__nav-wrapper" id="nav-menu">
           <ul class="site-header__nav">
-            <li><a href="/">Home</a></li>
-            <li><a href="/top-rated/">Top Rated</a></li>
-            <li><a href="/city/new-york/">Cities</a></li>
-            <li><a href="/cuisine/pizza/">Cuisines</a></li>
+            <li><a href={base}>Home</a></li>
+            <li><a href={`${base}top-rated/`}>Top Rated</a></li>
+            <li><a href={`${base}city/new-york/`}>Cities</a></li>
+            <li><a href={`${base}cuisine/pizza/`}>Cuisines</a></li>
           </ul>
         </nav>
       </div>
@@ -166,8 +167,8 @@ const fullTitle = title.includes('OneMinReviews') ? title : `${title} | OneMinRe
           &copy; {new Date().getFullYear()} OneMinReviews. An archive of <a href="https://www.tiktok.com/@oneminreviews" target="_blank" rel="noopener">@oneminreviews</a> content.
         </p>
         <ul class="site-footer__links">
-          <li><a href="/top-rated/">Top Rated</a></li>
-          <li><a href="/sitemap.xml">Sitemap</a></li>
+          <li><a href={`${base}top-rated/`}>Top Rated</a></li>
+          <li><a href={`${base}sitemap.xml`}>Sitemap</a></li>
         </ul>
       </div>
     </footer>

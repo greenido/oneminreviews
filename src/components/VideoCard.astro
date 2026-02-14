@@ -32,7 +32,7 @@ const slug = caption
   .slice(0, 50)
   .replace(/-$/, '');
 
-const href = `/${restaurantSlug}/${slug}-${videoId}/`;
+const href = `${import.meta.env.BASE_URL}${restaurantSlug}/${slug}-${videoId}/`;
 
 function formatNumber(n: number): string {
   if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';

@@ -3,7 +3,8 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://oneminreviews.com',
+  site: 'https://greenido.github.io',
+  base: '/oneminreviews/',
   output: 'static',
   integrations: [sitemap()],
   build: {
