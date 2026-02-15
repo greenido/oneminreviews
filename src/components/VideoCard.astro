@@ -84,86 +84,99 @@ function formatNumber(n: number): string {
 
 <script>
   function initVideoCards() {
+    // Ensure there is a single shared modal container in the DOM
+    let modal = document.getElementById('vc-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'vc-modal';
+      modal.className = 'vc-modal';
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+      modal.innerHTML = `
+        <div class="vc-modal__backdrop"></div>
+        <div class="vc-modal__content">
+          <div class="vc-modal__loading">
+            <div class="video-card__spinner"></div>
+          </div>
+          <iframe class="vc-modal__iframe" allowfullscreen
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+            referrerpolicy="no-referrer-when-downgrade"></iframe>
+          <div class="vc-modal__fallback" style="display:none;"></div>
+          <button class="vc-modal__close" aria-label="Close video">&times;</button>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      const backdrop = modal.querySelector('.vc-modal__backdrop');
+      const closeBtn = modal.querySelector('.vc-modal__close');
+      const closeModal = () => {
+        modal.classList.remove('vc-modal--open');
+        document.body.style.overflow = '';
+        const iframe = modal.querySelector('.vc-modal__iframe');
+        if (iframe) iframe.src = '';
+        const fallback = modal.querySelector('.vc-modal__fallback');
+        if (fallback) { fallback.style.display = 'none'; fallback.innerHTML = ''; }
+        const loader = modal.querySelector('.vc-modal__loading');
+        if (loader) loader.style.display = 'flex';
+      };
+      backdrop?.addEventListener('click', closeModal);
+      closeBtn?.addEventListener('click', closeModal);
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('vc-modal--open')) closeModal();
+      });
+    }
+
     document.querySelectorAll('.video-card__thumb[data-video-id]').forEach((thumb) => {
       if (thumb.hasAttribute('data-vc-init')) return;
       thumb.setAttribute('data-vc-init', 'true');
 
       const handlePlay = () => {
-        // Don't re-init if already playing
-        if (thumb.classList.contains('video-card__thumb--playing')) return;
-
         const videoId = thumb.getAttribute('data-video-id');
         if (!videoId) return;
 
         const tiktokUrl = `https://www.tiktok.com/@oneminreviews/video/${videoId}`;
-        // Direct iframe embed URL — avoids loading embed.js and its analytics
-        // scripts (browser.oci.js, slardar.web.pre.js) in the parent document,
-        // which trigger Permissions-Policy "unload" violations on GitHub Pages.
         const iframeSrc = `https://www.tiktok.com/embed/v2/${videoId}`;
 
-        // Save original content for restore
-        const originalHTML = thumb.innerHTML;
+        const iframe = modal.querySelector('.vc-modal__iframe');
+        const loader = modal.querySelector('.vc-modal__loading');
+        const fallback = modal.querySelector('.vc-modal__fallback');
 
-        // Replace thumbnail with a direct TikTok iframe embed + spinner
-        thumb.innerHTML = `
-          <div class="video-card__embed-wrap">
-            <div class="video-card__embed-loading">
-              <div class="video-card__spinner"></div>
-            </div>
-            <iframe
-              class="video-card__embed-iframe"
-              src="${iframeSrc}"
-              allowfullscreen
-              allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-              loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade"
-              title="TikTok video ${videoId}"
-            ></iframe>
-            <button class="video-card__close-btn" aria-label="Close video">&times;</button>
-          </div>
-        `;
-        thumb.classList.add('video-card__thumb--playing');
+        // Reset state
+        if (loader) loader.style.display = 'flex';
+        if (fallback) { fallback.style.display = 'none'; fallback.innerHTML = ''; }
+        if (iframe) {
+          iframe.src = iframeSrc;
+          iframe.title = `TikTok video ${videoId}`;
+        }
 
-        const loader = thumb.querySelector('.video-card__embed-loading');
-        const closeBtn = thumb.querySelector('.video-card__close-btn');
-        const iframe = thumb.querySelector('iframe');
+        // Show modal
+        modal.classList.add('vc-modal--open');
+        document.body.style.overflow = 'hidden';
 
         // Remove spinner once iframe loads
         if (iframe) {
           iframe.addEventListener('load', () => {
-            if (loader) loader.remove();
-          });
+            if (loader) loader.style.display = 'none';
+          }, { once: true });
         }
 
         // Fallback: if nothing renders after 8s, show a direct link
         setTimeout(() => {
-          if (loader && loader.parentNode) {
-            loader.remove();
-            const wrap = thumb.querySelector('.video-card__embed-wrap');
-            if (wrap && !wrap.querySelector('.video-card__fallback')) {
-              const fallback = document.createElement('div');
-              fallback.className = 'video-card__fallback';
+          if (loader && loader.style.display !== 'none') {
+            loader.style.display = 'none';
+            if (fallback) {
               fallback.innerHTML = `
-                <span style="font-size:2rem;">&#127909;</span>
-                <p style="margin:8px 0 4px;font-weight:700;">Open on TikTok</p>
+                <span style="font-size:3rem;">&#127909;</span>
+                <p style="margin:12px 0 8px;font-weight:700;font-size:1.2rem;">Open on TikTok</p>
                 <a href="${tiktokUrl}" target="_blank" rel="noopener noreferrer"
-                   style="color:var(--color-accent);text-decoration:underline;">
+                   style="color:var(--color-accent, #ff3b5c);text-decoration:underline;font-size:1.1rem;">
                   Watch this review &rarr;
                 </a>
               `;
-              fallback.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:1rem;';
-              wrap.prepend(fallback);
+              fallback.style.display = 'flex';
             }
           }
         }, 8000);
-
-        if (closeBtn) {
-          closeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            thumb.innerHTML = originalHTML;
-            thumb.classList.remove('video-card__thumb--playing');
-          }, { once: true });
-        }
       };
 
       thumb.addEventListener('click', handlePlay);
@@ -187,13 +200,6 @@ function formatNumber(n: number): string {
     cursor: pointer;
   }
 
-  .video-card__thumb--playing {
-    aspect-ratio: 9 / 16;
-    min-height: 480px;
-    border-radius: var(--radius-md, 12px) var(--radius-md, 12px) 0 0;
-    overflow: hidden;
-  }
-
   .video-card__overlay {
     position: absolute;
     inset: 0;
@@ -213,73 +219,6 @@ function formatNumber(n: number): string {
     font-size: 2.5rem;
     color: #fff;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-  }
-
-  /* ---------- Inline embed ---------- */
-  .video-card__embed-wrap {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  .video-card__embed-iframe {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-    border-radius: var(--radius-md, 12px) var(--radius-md, 12px) 0 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .video-card__embed-loading {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--color-surface, #1a1a2e);
-    border-radius: var(--radius-md, 12px) var(--radius-md, 12px) 0 0;
-    z-index: 2;
-  }
-
-  .video-card__spinner {
-    width: 28px;
-    height: 28px;
-    border: 3px solid var(--color-border, #333);
-    border-top-color: var(--color-accent, #ff3b5c);
-    border-radius: 50%;
-    animation: vc-spin 0.7s linear infinite;
-  }
-
-  @keyframes vc-spin {
-    to { transform: rotate(360deg); }
-  }
-
-  .video-card__close-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.7);
-    color: #fff;
-    border: none;
-    border-radius: 50%;
-    font-size: 1.2rem;
-    cursor: pointer;
-    z-index: 20;
-    transition: background 0.2s ease;
-  }
-
-  .video-card__close-btn:hover {
-    background: rgba(0, 0, 0, 0.9);
   }
 
   /* ---------- Existing card styles ---------- */
@@ -322,9 +261,122 @@ function formatNumber(n: number): string {
     .video-card__stats {
       font-size: 0.72rem;
     }
+  }
+</style>
 
-    .video-card__thumb--playing {
-      min-height: 400px;
+<!-- Global modal styles (only rendered once, scoped via :global) -->
+<style is:global>
+  /* ---------- Video Modal Overlay ---------- */
+  .vc-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .vc-modal--open {
+    pointer-events: auto;
+    opacity: 1;
+  }
+
+  .vc-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+  }
+
+  .vc-modal__content {
+    position: relative;
+    width: 90vw;
+    max-width: 400px;
+    height: 85vh;
+    max-height: 750px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--color-surface, #1a1a2e);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+  }
+
+  .vc-modal__iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  .vc-modal__loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-surface, #1a1a2e);
+    z-index: 2;
+  }
+
+  .vc-modal__fallback {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 1.5rem;
+    color: #fff;
+    z-index: 3;
+    background: var(--color-surface, #1a1a2e);
+  }
+
+  .vc-modal__close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 20;
+    transition: background 0.2s ease, transform 0.15s ease;
+  }
+
+  .vc-modal__close:hover {
+    background: rgba(0, 0, 0, 0.95);
+    transform: scale(1.1);
+  }
+
+  /* Spinner (shared) */
+  .video-card__spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--color-border, #333);
+    border-top-color: var(--color-accent, #ff3b5c);
+    border-radius: 50%;
+    animation: vc-spin 0.7s linear infinite;
+  }
+
+  @keyframes vc-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @media (max-width: 480px) {
+    .vc-modal__content {
+      width: 96vw;
+      height: 90vh;
+      max-height: none;
+      border-radius: 12px;
     }
   }
 </style>
