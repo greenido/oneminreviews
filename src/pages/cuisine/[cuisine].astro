@@ -9,6 +9,7 @@ import {
   cuisineSlug,
   cuisinePath,
   cityPath,
+  isRealVideo,
   type Video,
 } from '../../lib/data';
 
@@ -80,6 +81,7 @@ const jsonLd = {
               cuisine={video.cuisine}
               thumbnailUrl={video.thumbnailUrl}
               stats={video.stats}
+              videoAvailable={isRealVideo(video)}
             />
           );
         })}

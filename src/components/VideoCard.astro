@@ -11,6 +11,8 @@ export interface Props {
   thumbnailUrl: string;
   stats: { likes: number; comments: number; shares: number };
   rank?: number;
+  /** Set to false to hide video play functionality (e.g. when no real TikTok video exists) */
+  videoAvailable?: boolean;
 }
 
 const {
@@ -23,6 +25,7 @@ const {
   thumbnailUrl,
   stats,
   rank,
+  videoAvailable = true,
 } = Astro.props;
 
 // Use the shared slugify() so the link always matches the static path
@@ -48,7 +51,7 @@ function formatNumber(n: number): string {
 ---
 
 <article class="card video-card">
-  {hasRealThumbnail && (
+  {videoAvailable && hasRealThumbnail && (
     <div class="video-card__thumb" data-video-id={videoId} role="button" tabindex="0" aria-label={`Play review of ${restaurantName}`}>
       <img
         src={resolvedThumbnail}
@@ -66,19 +69,31 @@ function formatNumber(n: number): string {
     </div>
   )}
   <div class="card__body">
-    <a href={href} class="card__title-link">
-      {rank && <span class="card__rank">#{rank}</span>}
-      <h3 class="card__title">{restaurantName}</h3>
-    </a>
+    {videoAvailable ? (
+      <a href={href} class="card__title-link">
+        {rank && <span class="card__rank">#{rank}</span>}
+        <h3 class="card__title">{restaurantName}</h3>
+      </a>
+    ) : (
+      <div class="card__title-link">
+        {rank && <span class="card__rank">#{rank}</span>}
+        <h3 class="card__title">{restaurantName}</h3>
+      </div>
+    )}
     <div class="card__meta">
-      <span class="tag tag--city">{city}</span>
-      <span class="tag tag--cuisine">{cuisine}</span>
+      {city && <span class="tag tag--city">{city}</span>}
+      {cuisine && <span class="tag tag--cuisine">{cuisine}</span>}
     </div>
-    <div class="card__meta video-card__stats" style="margin-top: 8px;">
-      <span title="Likes">&#10084; {formatNumber(stats.likes)}</span>
-      <span title="Comments">&#128172; {formatNumber(stats.comments)}</span>
-      <span title="Shares">&#8618; {formatNumber(stats.shares)}</span>
-    </div>
+    {!videoAvailable && (
+      <p class="video-card__no-video">Video review coming soon</p>
+    )}
+    {videoAvailable && (
+      <div class="card__meta video-card__stats" style="margin-top: 8px;">
+        <span title="Likes">&#10084; {formatNumber(stats.likes)}</span>
+        <span title="Comments">&#128172; {formatNumber(stats.comments)}</span>
+        <span title="Shares">&#8618; {formatNumber(stats.shares)}</span>
+      </div>
+    )}
   </div>
 </article>
 
@@ -241,6 +256,14 @@ function formatNumber(n: number): string {
     border-radius: var(--radius-sm, 6px);
     line-height: 1.4;
     white-space: nowrap;
+  }
+
+  .video-card__no-video {
+    font-size: 0.8rem;
+    color: var(--color-text-muted, #888);
+    font-style: italic;
+    margin-top: 8px;
+    margin-bottom: 0;
   }
 
   .video-card__stats {

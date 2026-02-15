@@ -8,6 +8,7 @@ import {
   getCuisines,
   cityPath,
   cuisinePath,
+  isRealVideo,
 } from '../lib/data';
 
 const restaurants = getRestaurants();
@@ -78,6 +79,7 @@ const jsonLd = {
             thumbnailUrl={video.thumbnailUrl}
             stats={video.stats}
             rank={index + 1}
+            videoAvailable={isRealVideo(video)}
           />
         ))}
       </div>

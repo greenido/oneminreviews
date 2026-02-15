@@ -195,6 +195,21 @@ export function resolveThumbnail(thumbnailUrl: string): string {
   return thumbnailUrl;
 }
 
+// ---------- Video Availability ----------
+
+/**
+ * Returns true if the video appears to be a real @oneminreviews TikTok video
+ * (scraped from TikTok with a real CDN thumbnail), as opposed to seed/placeholder data
+ * whose video IDs don't actually exist on TikTok.
+ */
+export function isRealVideo(video: Video): boolean {
+  // Real scraped videos have remote TikTok CDN thumbnail URLs
+  if (video.thumbnailUrl && video.thumbnailUrl.startsWith('http')) return true;
+  // Real TikTok video IDs are 19 digits; seed data uses shorter IDs
+  if (video.videoId && video.videoId.length >= 19 && /^\d+$/.test(video.videoId)) return true;
+  return false;
+}
+
 // ---------- TikTok URL Helpers ----------
 
 const TIKTOK_HANDLE = 'oneminreviews';
