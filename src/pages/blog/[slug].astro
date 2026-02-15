@@ -1,0 +1,508 @@
+---
+import Base from '../../layouts/Base.astro';
+import TikTokEmbed from '../../components/TikTokEmbed.astro';
+import VideoCard from '../../components/VideoCard.astro';
+import {
+  getBlogPosts,
+  getRestaurants,
+  getVideoById,
+  getVideosByCity,
+  blogPostPath,
+  videoPath,
+  cityPath,
+  cuisinePath,
+  resolveThumbnail,
+  tiktokWatchUrl,
+  tiktokEmbedUrl,
+  type BlogPost,
+} from '../../lib/data';
+
+export function getStaticPaths() {
+  const posts = getBlogPosts();
+  const restaurants = getRestaurants();
+
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: {
+      post,
+      restaurant: restaurants[post.restaurantSlug] ?? null,
+    },
+  }));
+}
+
+interface Props {
+  post: BlogPost;
+  restaurant: import('../../lib/data').Restaurant | null;
+}
+
+const { post, restaurant } = Astro.props;
+const video = getVideoById(post.videoId);
+const restaurants = getRestaurants();
+
+// Related posts from the same city
+const relatedPosts = getBlogPosts()
+  .filter((p) => p.videoId !== post.videoId && p.city === post.city)
+  .slice(0, 3);
+
+// Date formatting
+const reviewDate = new Date(post.createTime * 1000).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+const isoDate = new Date(post.createTime * 1000).toISOString();
+const generatedDate = new Date(post.generatedAt).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+// Thumbnail
+const thumb = resolveThumbnail(post.thumbnailUrl);
+
+// SEO
+const base = import.meta.env.BASE_URL;
+const pageTitle = post.title;
+const pageDescription = post.summary;
+
+// Simple markdown → HTML (handles ## headings, **bold**, paragraphs)
+function markdownToHtml(md: string): string {
+  return md
+    .split('\n\n')
+    .map((block) => {
+      const trimmed = block.trim();
+      if (!trimmed) return '';
+      if (trimmed.startsWith('### '))
+        return `<h3>${trimmed.slice(4)}</h3>`;
+      if (trimmed.startsWith('## '))
+        return `<h2>${trimmed.slice(3)}</h2>`;
+      if (trimmed.startsWith('# '))
+        return `<h1>${trimmed.slice(2)}</h1>`;
+      // Bold and italic
+      let html = trimmed
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
+      return `<p>${html}</p>`;
+    })
+    .filter(Boolean)
+    .join('\n');
+}
+
+const contentHtml = markdownToHtml(post.content);
+
+// JSON-LD for Blog Post
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.summary,
+    image: thumb,
+    datePublished: isoDate,
+    dateModified: post.generatedAt,
+    author: {
+      '@type': 'Person',
+      name: '@oneminreviews',
+      url: 'https://www.tiktok.com/@oneminreviews',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'OneMinReviews',
+    },
+    about: restaurant ? {
+      '@type': 'Restaurant',
+      name: restaurant.name,
+      address: restaurant.address,
+      servesCuisine: restaurant.cuisine,
+    } : undefined,
+  },
+];
+---
+
+<Base
+  title={pageTitle}
+  description={pageDescription}
+  canonicalUrl={blogPostPath(post)}
+  ogImage={thumb}
+  ogType="article"
+  jsonLd={jsonLd}
+>
+  <article class="blog-post">
+    <div class="container">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol>
+          <li><a href={base}>Home</a></li>
+          <li><a href={`${base}blog/`}>Blog</a></li>
+          <li aria-current="page">{post.restaurantName || 'Review'}</li>
+        </ol>
+      </nav>
+
+      <!-- Header -->
+      <header class="blog-post__header">
+        <h1>{post.title}</h1>
+        <div class="blog-post__meta">
+          <time datetime={isoDate}>{reviewDate}</time>
+          {post.city && (
+            <a href={cityPath(post.city)} class="tag tag--city">{post.city}</a>
+          )}
+          {post.cuisine && (
+            <a href={cuisinePath(post.cuisine)} class="tag tag--cuisine">{post.cuisine}</a>
+          )}
+        </div>
+      </header>
+
+      <!-- Two-column layout -->
+      <div class="blog-post__layout">
+        <!-- Main content -->
+        <div class="blog-post__content">
+          {/* Embedded video */}
+          {video && (
+            <div class="blog-post__video">
+              <TikTokEmbed
+                videoId={post.videoId}
+                embedUrl={post.embedUrl}
+                thumbnailUrl={thumb}
+              />
+            </div>
+          )}
+
+          {/* Blog content */}
+          <div class="blog-post__body prose" set:html={contentHtml} />
+
+          {/* Transcript toggle */}
+          <details class="blog-post__transcript">
+            <summary>View original video transcript</summary>
+            <blockquote>
+              <p>{post.transcript}</p>
+            </blockquote>
+            {post.transcriptDuration && (
+              <p class="blog-post__transcript-meta">
+                Duration: {Math.round(post.transcriptDuration)}s
+              </p>
+            )}
+          </details>
+
+          <p class="blog-post__attribution">
+            This review was auto-transcribed from an <a href={tiktokWatchUrl(post.videoId)} target="_blank" rel="noopener">@oneminreviews TikTok video</a>
+            and transformed into a blog post on {generatedDate}.
+          </p>
+
+          {/* Link back to full video page */}
+          {video && (
+            <div class="blog-post__cta">
+              <a href={videoPath(video)} class="btn btn--accent">
+                View Full Video Page &rarr;
+              </a>
+            </div>
+          )}
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="blog-post__sidebar">
+          {restaurant && (
+            <div class="restaurant-card">
+              <h3>{restaurant.name}</h3>
+              <p class="restaurant-card__address">{restaurant.address}</p>
+              <div class="restaurant-card__details">
+                <div class="restaurant-card__detail">
+                  <strong>Cuisine</strong>
+                  <a href={cuisinePath(post.cuisine)}>{restaurant.cuisine}</a>
+                </div>
+                <div class="restaurant-card__detail">
+                  <strong>City</strong>
+                  <a href={cityPath(post.city)}>{restaurant.city}, {restaurant.state}</a>
+                </div>
+                {restaurant.google?.rating > 0 && (
+                  <div class="restaurant-card__detail">
+                    <strong>Google</strong>
+                    <span>{restaurant.google.rating}/5 ({restaurant.google.reviewCount} reviews)</span>
+                  </div>
+                )}
+              </div>
+              {restaurant.google?.placeId && (
+                <a
+                  href={`https://www.google.com/maps/place/?q=place_id:${restaurant.google.placeId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn--outline"
+                  style="width:100%;justify-content:center;margin-top:var(--space-md);"
+                >
+                  View on Google Maps
+                </a>
+              )}
+            </div>
+          )}
+        </aside>
+      </div>
+
+      {/* Related blog posts */}
+      {relatedPosts.length > 0 && (
+        <section class="blog-post__related">
+          <h2>More Reviews in {post.city}</h2>
+          <div class="blog-grid--related">
+            {relatedPosts.map((rp) => (
+              <a href={blogPostPath(rp)} class="blog-card--mini">
+                <h3>{rp.title}</h3>
+                <p>{rp.summary}</p>
+                <span class="blog-card__read-more">Read review &rarr;</span>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  </article>
+</Base>
+
+<style>
+  .breadcrumb ol {
+    display: flex;
+    gap: var(--space-sm);
+    list-style: none;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    padding: var(--space-lg) 0;
+  }
+
+  .breadcrumb li:not(:last-child)::after {
+    content: '/';
+    margin-left: var(--space-sm);
+    color: var(--color-text-dim);
+  }
+
+  .breadcrumb a {
+    color: var(--color-text-muted);
+  }
+
+  .breadcrumb a:hover {
+    color: var(--color-accent);
+  }
+
+  .blog-post__header {
+    margin-bottom: var(--space-2xl);
+    max-width: var(--max-width-narrow);
+  }
+
+  .blog-post__header h1 {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    line-height: 1.3;
+    margin-bottom: var(--space-md);
+  }
+
+  .blog-post__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    flex-wrap: wrap;
+  }
+
+  .blog-post__layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: var(--space-2xl);
+    align-items: start;
+  }
+
+  .blog-post__video {
+    margin-bottom: var(--space-xl);
+  }
+
+  /* Prose styling for blog content */
+  .prose :global(h2) {
+    font-size: 1.4rem;
+    margin-top: var(--space-2xl);
+    margin-bottom: var(--space-md);
+    color: var(--color-text);
+  }
+
+  .prose :global(h3) {
+    font-size: 1.15rem;
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-sm);
+    color: var(--color-text);
+  }
+
+  .prose :global(p) {
+    line-height: 1.75;
+    margin-bottom: var(--space-lg);
+    color: var(--color-text);
+    font-size: 1.05rem;
+  }
+
+  .prose :global(strong) {
+    font-weight: 600;
+  }
+
+  /* Transcript section */
+  .blog-post__transcript {
+    margin-top: var(--space-2xl);
+    padding: var(--space-lg);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .blog-post__transcript summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+  }
+
+  .blog-post__transcript summary:hover {
+    color: var(--color-accent);
+  }
+
+  .blog-post__transcript blockquote {
+    margin-top: var(--space-md);
+    padding-left: var(--space-lg);
+    border-left: 3px solid var(--color-accent-dim);
+    color: var(--color-text-muted);
+    font-style: italic;
+    line-height: 1.7;
+  }
+
+  .blog-post__transcript-meta {
+    font-size: 0.8rem;
+    color: var(--color-text-dim);
+    margin-top: var(--space-sm);
+  }
+
+  .blog-post__attribution {
+    margin-top: var(--space-xl);
+    padding: var(--space-md) var(--space-lg);
+    background: var(--color-accent-dim);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+  }
+
+  .blog-post__attribution a {
+    color: var(--color-accent);
+  }
+
+  .blog-post__cta {
+    margin-top: var(--space-xl);
+  }
+
+  /* Sidebar */
+  .blog-post__sidebar .restaurant-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-xl);
+    position: sticky;
+    top: 80px;
+  }
+
+  .blog-post__sidebar .restaurant-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: var(--space-xs);
+  }
+
+  .blog-post__sidebar .restaurant-card__address {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-lg);
+  }
+
+  .blog-post__sidebar .restaurant-card__details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .blog-post__sidebar .restaurant-card__detail {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+  }
+
+  .blog-post__sidebar .restaurant-card__detail strong {
+    color: var(--color-text-muted);
+  }
+
+  /* Related posts */
+  .blog-post__related {
+    margin-top: var(--space-3xl);
+    padding-top: var(--space-2xl);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .blog-post__related h2 {
+    margin-bottom: var(--space-lg);
+  }
+
+  .blog-grid--related {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-lg);
+  }
+
+  .blog-card--mini {
+    display: block;
+    padding: var(--space-lg);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--color-text);
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .blog-card--mini:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-2px);
+  }
+
+  .blog-card--mini h3 {
+    font-size: 1rem;
+    margin-bottom: var(--space-sm);
+    line-height: 1.4;
+  }
+
+  .blog-card--mini p {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    margin-bottom: var(--space-sm);
+  }
+
+  .blog-card__read-more {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+
+  @media (max-width: 900px) {
+    .blog-post__layout {
+      grid-template-columns: 1fr;
+    }
+
+    .blog-post__sidebar .restaurant-card {
+      position: static;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .breadcrumb ol {
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      font-size: 0.8rem;
+      padding: var(--space-md) 0;
+    }
+
+    .blog-post__meta {
+      font-size: 0.85rem;
+    }
+
+    .prose :global(p) {
+      font-size: 1rem;
+    }
+  }
+</style>

@@ -23,6 +23,8 @@ import {
   tiktokWatchUrl,
   tiktokEmbedUrl,
   resolveThumbnail,
+  getBlogPostByVideoId,
+  blogPostPath,
   type Video,
   type Restaurant,
 } from '../../lib/data';
@@ -70,6 +72,9 @@ const restaurants = getRestaurants();
 // Google Places data (shown as supplementary venue info when available)
 const showGoogleData = hasGoogleData(restaurant);
 const googleReviews = getGoogleReviews(restaurant);
+
+// Blog post (if available)
+const blogPost = getBlogPostByVideoId(video.videoId);
 
 // FAQ
 const faqs = generateFAQs(restaurant, video);
@@ -261,6 +266,11 @@ const jsonLd = [
       <section class="video-page__caption">
         <h2>About This Review</h2>
         <p>{video.caption}</p>
+        {blogPost && (
+          <a href={blogPostPath(blogPost)} class="btn btn--outline" style="margin-top: var(--space-md); display: inline-flex;">
+            Read Full Written Review &rarr;
+          </a>
+        )}
       </section>
 
       <!-- Google Reviews (supplementary venue data) -->

@@ -26,6 +26,12 @@ on:
         default: 'false'
         type: choice
         options: ['true', 'false']
+      run_transcribe:
+        description: 'Run video transcription & blog generation'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['true', 'false']
 
 permissions:
   contents: write
@@ -106,6 +112,16 @@ jobs:
         env:
           GOOGLE_PLACES_KEY: ${{ secrets.GOOGLE_PLACES_KEY }}
           YELP_API_KEY: ${{ secrets.YELP_API_KEY }}
+        continue-on-error: true
+
+      # ---- Video Transcription & Blog Generation ----
+      - name: Transcribe Videos & Generate Blog Posts
+        if: >
+          github.event_name == 'workflow_dispatch' && github.event.inputs.run_transcribe == 'true'
+        run: npm run transcribe
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          TRANSCRIBE_MAX: '10'
         continue-on-error: true
 
       # ---- Generate OG Images ----

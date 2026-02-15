@@ -1,5 +1,6 @@
 import videosData from '../../data/videos.json';
 import restaurantsData from '../../data/restaurants.json';
+import blogPostsData from '../../data/blog-posts.json';
 
 // ---------- Types ----------
 
@@ -53,6 +54,26 @@ export interface Restaurant {
 
 export type RestaurantMap = Record<string, Restaurant>;
 
+export interface BlogPost {
+  videoId: string;
+  slug: string;
+  restaurantSlug: string;
+  restaurantName: string;
+  city: string;
+  cuisine: string;
+  title: string;
+  summary: string;
+  content: string;
+  transcript: string;
+  transcriptDuration: number | null;
+  thumbnailUrl: string;
+  embedUrl: string;
+  createTime: number;
+  generatedAt: string;
+}
+
+export type BlogPostMap = Record<string, BlogPost>;
+
 // ---------- Data Access ----------
 
 export function getVideos(): Video[] {
@@ -65,6 +86,34 @@ export function getRestaurants(): RestaurantMap {
 
 export function getRestaurant(slug: string): Restaurant | undefined {
   return getRestaurants()[slug];
+}
+
+// ---------- Blog Post Access ----------
+
+export function getBlogPostMap(): BlogPostMap {
+  return blogPostsData as unknown as BlogPostMap;
+}
+
+/** Return all blog posts sorted by creation date (newest first). */
+export function getBlogPosts(): BlogPost[] {
+  return Object.values(getBlogPostMap()).sort(
+    (a, b) => b.createTime - a.createTime
+  );
+}
+
+/** Get a single blog post by videoId. */
+export function getBlogPostByVideoId(videoId: string): BlogPost | undefined {
+  return getBlogPostMap()[videoId];
+}
+
+/** Get a single blog post by its URL slug. */
+export function getBlogPostBySlug(slug: string): BlogPost | undefined {
+  return getBlogPosts().find((p) => p.slug === slug);
+}
+
+/** Build URL path for a blog post. */
+export function blogPostPath(post: BlogPost): string {
+  return `${import.meta.env.BASE_URL}blog/${post.slug}/`;
 }
 
 export function getVideoById(videoId: string): Video | undefined {

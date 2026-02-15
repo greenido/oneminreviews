@@ -159,9 +159,9 @@
     "city": "",
     "cuisine": "",
     "stats": {
-      "likes": 31,
-      "comments": 6,
-      "shares": 2
+      "likes": 222,
+      "comments": 8,
+      "shares": 4
     }
   },
   {
@@ -219,9 +219,9 @@
     "city": "",
     "cuisine": "Burger",
     "stats": {
-      "likes": 524,
+      "likes": 528,
       "comments": 15,
-      "shares": 90
+      "shares": 91
     }
   },
   {
@@ -234,7 +234,7 @@
     "city": "",
     "cuisine": "",
     "stats": {
-      "likes": 570,
+      "likes": 574,
       "comments": 30,
       "shares": 27
     }
@@ -294,7 +294,7 @@
     "city": "Los Angeles",
     "cuisine": "",
     "stats": {
-      "likes": 1053,
+      "likes": 1054,
       "comments": 23,
       "shares": 16
     }

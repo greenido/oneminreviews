@@ -13,9 +13,10 @@
     "process-media": "node scripts/process-media.js",
     "generate-og": "node scripts/generate-og-images.js",
     "generate-sitemaps": "node scripts/generate-sitemaps.js",
+    "transcribe": "node scripts/transcribe-videos.js",
     "test": "vitest run",
     "test:watch": "vitest",
-    "pipeline": "npm run scrape && npm run process-media && npm run enrich && npm run generate-og && npm run build && npm run generate-sitemaps"
+    "pipeline": "npm run scrape && npm run process-media && npm run enrich && npm run transcribe && npm run generate-og && npm run build && npm run generate-sitemaps"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.0",

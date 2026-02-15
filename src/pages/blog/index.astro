@@ -1,0 +1,198 @@
+---
+import Base from '../../layouts/Base.astro';
+import VideoCard from '../../components/VideoCard.astro';
+import {
+  getBlogPosts,
+  getRestaurants,
+  blogPostPath,
+  resolveThumbnail,
+  type BlogPost,
+} from '../../lib/data';
+
+const posts = getBlogPosts();
+const restaurants = getRestaurants();
+
+const pageTitle = 'Blog — Restaurant Reviews Written from Video';
+const pageDescription =
+  'Read full written reviews transcribed from our honest one-minute TikTok restaurant videos. Every review auto-generated from real video content.';
+---
+
+<Base title={pageTitle} description={pageDescription}>
+  <section class="blog-index">
+    <div class="container">
+      <header class="blog-index__header">
+        <h1>Blog</h1>
+        <p class="blog-index__subtitle">
+          Full written reviews auto-transcribed from our one-minute TikTok videos.
+          Real words, real opinions — now in blog form.
+        </p>
+      </header>
+
+      {posts.length === 0 ? (
+        <div class="blog-index__empty">
+          <p>No blog posts yet. Run <code>npm run transcribe</code> to generate posts from video transcripts.</p>
+        </div>
+      ) : (
+        <div class="blog-grid">
+          {posts.map((post) => {
+            const restaurant = restaurants[post.restaurantSlug];
+            const thumb = resolveThumbnail(post.thumbnailUrl);
+            const date = new Date(post.createTime * 1000).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+            });
+
+            return (
+              <a href={blogPostPath(post)} class="blog-card">
+                <div class="blog-card__image">
+                  <img
+                    src={thumb}
+                    alt={post.title}
+                    loading="lazy"
+                    width="400"
+                    height="225"
+                  />
+                </div>
+                <div class="blog-card__body">
+                  <div class="blog-card__meta">
+                    <time datetime={new Date(post.createTime * 1000).toISOString()}>
+                      {date}
+                    </time>
+                    {post.city && <span class="tag tag--city">{post.city}</span>}
+                    {post.cuisine && <span class="tag tag--cuisine">{post.cuisine}</span>}
+                  </div>
+                  <h2 class="blog-card__title">{post.title}</h2>
+                  <p class="blog-card__summary">{post.summary}</p>
+                  <span class="blog-card__read-more">Read full review &rarr;</span>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .blog-index__header {
+    text-align: center;
+    padding: var(--space-3xl) 0 var(--space-2xl);
+  }
+
+  .blog-index__header h1 {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-md);
+  }
+
+  .blog-index__subtitle {
+    color: var(--color-text-muted);
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .blog-index__empty {
+    text-align: center;
+    padding: var(--space-3xl);
+    color: var(--color-text-muted);
+  }
+
+  .blog-index__empty code {
+    background: var(--color-surface);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+  }
+
+  .blog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: var(--space-xl);
+    padding-bottom: var(--space-3xl);
+  }
+
+  .blog-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--color-text);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .blog-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--color-accent);
+  }
+
+  .blog-card__image {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--color-bg);
+  }
+
+  .blog-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .blog-card:hover .blog-card__image img {
+    transform: scale(1.05);
+  }
+
+  .blog-card__body {
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    flex: 1;
+  }
+
+  .blog-card__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+
+  .blog-card__title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  .blog-card__summary {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  .blog-card__read-more {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    margin-top: var(--space-sm);
+  }
+
+  @media (max-width: 768px) {
+    .blog-index__header h1 {
+      font-size: 1.8rem;
+    }
+
+    .blog-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

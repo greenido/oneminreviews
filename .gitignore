@@ -28,5 +28,8 @@ Thumbs.db
 assets/videos/*.mp4
 assets/videos/*.m3u8
 
+# Temp files (audio extraction, etc.)
+tmp/
+
 # Cache
 .cache/
