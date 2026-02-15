@@ -18,7 +18,7 @@ import {
 const videos = getVideos();
 const restaurants = getRestaurants();
 const topRated = getTopRated(6);
-const latest = getLatestVideos(6);
+const latest = getLatestVideos(9);
 const cities = getCities();
 const cuisines = getCuisines();
 
@@ -51,10 +51,10 @@ const jsonLd = {
     <div class="container">
       <h1 class="hero__title">
         Honest Restaurant Reviews<br />
-        by <span class="hero__accent">@oneminreviews</span>
+        by <a href="https://www.tiktok.com/@oneminreviews" target="_blank" rel="noopener noreferrer" class="hero__accent">@oneminreviews</a>
       </h1>
       <p class="hero__subtitle">
-        Real food. Real opinions. One minute each. We archive every @oneminreviews video
+        Real food. Real opinions. One minute each. We archive every <a href="https://www.tiktok.com/@oneminreviews" target="_blank" rel="noopener noreferrer">@oneminreviews</a> video
         so you can find the best restaurants near you — no algorithms, no
         sponsored content, just the truth.
       </p>
@@ -129,6 +129,9 @@ const jsonLd = {
           );
         })}
       </div>
+      <div style="text-align: center; margin-top: var(--space-xl);">
+        <a href={`${import.meta.env.BASE_URL}all-reviews/`} class="btn btn--outline">View All Reviews</a>
+      </div>
     </div>
   </section>
 
@@ -165,7 +168,7 @@ const jsonLd = {
     <div class="container container--narrow">
       <h2>About OneMinReviews</h2>
       <p>
-        OneMinReviews is the definitive archive of <strong>@oneminreviews</strong> TikTok content.
+        OneMinReviews is the definitive archive of <strong><a href="https://www.tiktok.com/@oneminreviews" target="_blank" rel="noopener noreferrer">@oneminreviews</a></strong> TikTok content.
         Every video is paired with restaurant details and location info — all in one place.
       </p>
       <p>

@@ -1,0 +1,291 @@
+---
+import Base from '../layouts/Base.astro';
+import VideoCard from '../components/VideoCard.astro';
+import {
+  getVideos,
+  getRestaurants,
+  getCities,
+  getCuisines,
+  cityPath,
+  cuisinePath,
+  isRealVideo,
+  type Video,
+} from '../lib/data';
+
+const restaurants = getRestaurants();
+const allVideos: Video[] = [...getVideos()].sort(
+  (a, b) => b.createTime - a.createTime
+);
+const cities = getCities();
+const cuisines = getCuisines();
+
+const description = `Browse every restaurant review by @oneminreviews — ${allVideos.length} honest, one-minute TikTok video reviews. No sponsors, no algorithms, just real food opinions.`;
+
+const siteBase = `${Astro.site?.origin ?? 'https://greenido.github.io'}${import.meta.env.BASE_URL}`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'All Restaurant Reviews by @oneminreviews',
+  description,
+  url: `${siteBase}all-reviews/`,
+};
+---
+
+<Base
+  title="All Reviews — Every @oneminreviews TikTok Video"
+  description={description}
+  canonicalUrl={`${import.meta.env.BASE_URL}all-reviews/`}
+  jsonLd={jsonLd}
+>
+  <section class="section">
+    <div class="container">
+      <header class="section__header">
+        <h1>All @oneminreviews Videos</h1>
+        <p class="section__subtitle">
+          Every honest, one-minute restaurant review from
+          <a href="https://www.tiktok.com/@oneminreviews" target="_blank" rel="noopener noreferrer">@oneminreviews</a>
+          on TikTok — <strong>{allVideos.length} reviews</strong> and counting.
+          No sponsors, no paid placements, just real food opinions.
+        </p>
+      </header>
+
+      <!-- Quick filters -->
+      <div class="filter-row">
+        <div class="filter-group">
+          <span class="filter-label">Cities:</span>
+          <div class="filter-tags">
+            {cities.map((city) => (
+              <a href={cityPath(city)} class="tag tag--city tag--clickable">{city}</a>
+            ))}
+          </div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Cuisines:</span>
+          <div class="filter-tags">
+            {cuisines.map((cuisine) => (
+              <a href={cuisinePath(cuisine)} class="tag tag--cuisine tag--clickable">{cuisine}</a>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <!-- Search/filter bar -->
+      <div class="search-bar" style="margin-top: var(--space-xl);">
+        <input
+          type="text"
+          id="review-search"
+          class="search-bar__input"
+          placeholder="Filter by restaurant name, city, or cuisine..."
+          autocomplete="off"
+        />
+        <span class="search-bar__count" id="review-count">{allVideos.length} reviews</span>
+      </div>
+
+      <!-- All reviews grid -->
+      <div class="grid grid--3" id="reviews-grid" style="margin-top: var(--space-xl);">
+        {allVideos.map((video) => {
+          const r = restaurants[video.restaurantSlug];
+          return (
+            <div
+              class="review-item"
+              data-name={r?.name?.toLowerCase() ?? video.restaurantSlug}
+              data-city={video.city?.toLowerCase()}
+              data-cuisine={video.cuisine?.toLowerCase()}
+            >
+              <VideoCard
+                videoId={video.videoId}
+                restaurantName={r?.name ?? video.restaurantSlug}
+                restaurantSlug={video.restaurantSlug}
+                caption={video.caption}
+                city={video.city}
+                cuisine={video.cuisine}
+                thumbnailUrl={video.thumbnailUrl}
+                stats={video.stats}
+                videoAvailable={isRealVideo(video)}
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      <!-- No results message -->
+      <div class="no-results" id="no-results" style="display: none;">
+        <p>No reviews match your search. Try a different term.</p>
+      </div>
+
+      <!-- SEO block -->
+      <div class="seo-block" style="margin-top: var(--space-3xl);">
+        <h2>About This Archive</h2>
+        <p>
+          This page contains every restaurant review ever posted by
+          <strong>@oneminreviews</strong> on TikTok. Each video is exactly one
+          minute of honest, unsponsored opinion — covering the food, the vibe,
+          and whether the restaurant is worth your money. We archive these
+          reviews so you can search, filter, and find the perfect spot no matter
+          where you are.
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  function initSearch() {
+    const input = document.getElementById('review-search') as HTMLInputElement | null;
+    const grid = document.getElementById('reviews-grid');
+    const countEl = document.getElementById('review-count');
+    const noResults = document.getElementById('no-results');
+    if (!input || !grid) return;
+
+    const items = Array.from(grid.querySelectorAll('.review-item')) as HTMLElement[];
+
+    input.addEventListener('input', () => {
+      const query = input.value.toLowerCase().trim();
+      let visible = 0;
+
+      items.forEach((item) => {
+        const name = item.dataset.name ?? '';
+        const city = item.dataset.city ?? '';
+        const cuisine = item.dataset.cuisine ?? '';
+        const match =
+          !query ||
+          name.includes(query) ||
+          city.includes(query) ||
+          cuisine.includes(query);
+        item.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+
+      if (countEl) countEl.textContent = `${visible} review${visible !== 1 ? 's' : ''}`;
+      if (noResults) noResults.style.display = visible === 0 ? 'block' : 'none';
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initSearch);
+  document.addEventListener('astro:page-load', initSearch);
+</script>
+
+<style>
+  .filter-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .filter-group {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md);
+  }
+
+  .filter-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    padding-top: 4px;
+  }
+
+  .filter-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  .tag--clickable {
+    cursor: pointer;
+    transition: transform 0.15s ease;
+    text-decoration: none;
+  }
+
+  .tag--clickable:hover {
+    transform: translateY(-1px);
+  }
+
+  /* Search bar */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg, 12px);
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .search-bar__input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 1rem;
+    color: var(--color-text);
+    outline: none;
+    padding: var(--space-xs) 0;
+  }
+
+  .search-bar__input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .search-bar__count {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  /* No results */
+  .no-results {
+    text-align: center;
+    padding: var(--space-3xl) 0;
+  }
+
+  .no-results p {
+    font-size: 1.1rem;
+    color: var(--color-text-muted);
+  }
+
+  .seo-block h2 {
+    margin-bottom: var(--space-md);
+  }
+
+  .seo-block p {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    max-width: 700px;
+  }
+
+  @media (max-width: 768px) {
+    .filter-group {
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .filter-tags {
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: var(--space-sm);
+    }
+
+    .filter-tags::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-tags .tag {
+      flex-shrink: 0;
+    }
+
+    .search-bar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--space-xs);
+    }
+
+    .search-bar__count {
+      text-align: right;
+    }
+  }
+</style>

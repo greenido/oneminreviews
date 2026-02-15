@@ -103,6 +103,7 @@ const fullTitle = title.includes('OneMinReviews') ? title : `${title} | OneMinRe
         <nav class="site-header__nav-wrapper" id="nav-menu">
           <ul class="site-header__nav">
             <li><a href={base}>Home</a></li>
+            <li><a href={`${base}all-reviews/`}>All Reviews</a></li>
             <li><a href={`${base}top-rated/`}>Top Rated</a></li>
             <li><a href={`${base}city/new-york/`}>Cities</a></li>
             <li><a href={`${base}cuisine/pizza/`}>Cuisines</a></li>
@@ -169,6 +170,7 @@ const fullTitle = title.includes('OneMinReviews') ? title : `${title} | OneMinRe
           &copy; {new Date().getFullYear()} OneMinReviews. An archive of <a href="https://www.tiktok.com/@oneminreviews" target="_blank" rel="noopener">@oneminreviews</a> content.
         </p>
         <ul class="site-footer__links">
+          <li><a href={`${base}all-reviews/`}>All Reviews</a></li>
           <li><a href={`${base}top-rated/`}>Top Rated</a></li>
           <li><a href={`${base}sitemap.xml`}>Sitemap</a></li>
         </ul>
