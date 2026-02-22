@@ -491,5 +491,27 @@
     "videoIds": [
       "7585271540892110110"
     ]
+  },
+  "robu-coffee-robu-coffee": {
+    "name": "Robu Coffee Robu Coffee",
+    "slug": "robu-coffee-robu-coffee",
+    "city": "",
+    "state": "",
+    "cuisine": "",
+    "address": "",
+    "lat": 0,
+    "lng": 0,
+    "google": {
+      "rating": 0,
+      "reviewCount": 0
+    },
+    "yelp": {
+      "rating": 0,
+      "reviewCount": 0
+    },
+    "reviews": [],
+    "videoIds": [
+      "7607665683320655134"
+    ]
   }
 }
