@@ -535,5 +535,27 @@
     "videoIds": [
       "7611321652911131934"
     ]
+  },
+  "15-sixth-street-burger": {
+    "name": "15 Sixth Street Burger",
+    "slug": "15-sixth-street-burger",
+    "city": "",
+    "state": "",
+    "cuisine": "Burger",
+    "address": "",
+    "lat": 0,
+    "lng": 0,
+    "google": {
+      "rating": 0,
+      "reviewCount": 0
+    },
+    "yelp": {
+      "rating": 0,
+      "reviewCount": 0
+    },
+    "reviews": [],
+    "videoIds": [
+      "7612815456637816094"
+    ]
   }
 }
