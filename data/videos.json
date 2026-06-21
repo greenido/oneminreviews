@@ -235,7 +235,7 @@
     "cuisine": "",
     "stats": {
       "likes": 587,
-      "comments": 30,
+      "comments": 29,
       "shares": 30
     }
   },
@@ -264,7 +264,7 @@
     "city": "",
     "cuisine": "Pizza",
     "stats": {
-      "likes": 129,
+      "likes": 130,
       "comments": 19,
       "shares": 14
     }
@@ -280,7 +280,7 @@
     "cuisine": "",
     "stats": {
       "likes": 100,
-      "comments": 20,
+      "comments": 19,
       "shares": 12
     }
   },
@@ -295,7 +295,7 @@
     "cuisine": "",
     "stats": {
       "likes": 1061,
-      "comments": 23,
+      "comments": 22,
       "shares": 16
     }
   },
@@ -309,7 +309,7 @@
     "city": "",
     "cuisine": "Pizza",
     "stats": {
-      "likes": 748,
+      "likes": 749,
       "comments": 23,
       "shares": 37
     }
@@ -429,9 +429,9 @@
     "city": "",
     "cuisine": "Mexican",
     "stats": {
-      "likes": 708,
+      "likes": 725,
       "comments": 15,
-      "shares": 289
+      "shares": 294
     }
   },
   {
@@ -459,7 +459,7 @@
     "city": "",
     "cuisine": "",
     "stats": {
-      "likes": 119,
+      "likes": 120,
       "comments": 13,
       "shares": 10
     }
@@ -474,7 +474,7 @@
     "city": "",
     "cuisine": "",
     "stats": {
-      "likes": 88,
+      "likes": 105,
       "comments": 6,
       "shares": 2
     }
