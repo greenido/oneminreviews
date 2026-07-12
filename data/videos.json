@@ -204,7 +204,7 @@
     "city": "",
     "cuisine": "",
     "stats": {
-      "likes": 465,
+      "likes": 464,
       "comments": 18,
       "shares": 56
     }
@@ -221,7 +221,7 @@
     "stats": {
       "likes": 593,
       "comments": 16,
-      "shares": 111
+      "shares": 112
     }
   },
   {
@@ -249,7 +249,7 @@
     "city": "",
     "cuisine": "Middle Eastern",
     "stats": {
-      "likes": 331,
+      "likes": 332,
       "comments": 11,
       "shares": 14
     }
@@ -264,7 +264,7 @@
     "city": "",
     "cuisine": "Pizza",
     "stats": {
-      "likes": 130,
+      "likes": 131,
       "comments": 19,
       "shares": 14
     }
@@ -280,7 +280,7 @@
     "cuisine": "",
     "stats": {
       "likes": 100,
-      "comments": 20,
+      "comments": 19,
       "shares": 12
     }
   },
@@ -295,7 +295,7 @@
     "cuisine": "",
     "stats": {
       "likes": 1061,
-      "comments": 23,
+      "comments": 22,
       "shares": 16
     }
   },
@@ -369,7 +369,7 @@
     "city": "",
     "cuisine": "Burger",
     "stats": {
-      "likes": 929,
+      "likes": 930,
       "comments": 38,
       "shares": 179
     }
@@ -401,7 +401,7 @@
     "stats": {
       "likes": 109,
       "comments": 23,
-      "shares": 17
+      "shares": 18
     }
   },
   {
@@ -444,8 +444,8 @@
     "city": "",
     "cuisine": "",
     "stats": {
-      "likes": 70,
-      "comments": 13,
+      "likes": 71,
+      "comments": 14,
       "shares": 10
     }
   },
@@ -474,9 +474,9 @@
     "city": "",
     "cuisine": "",
     "stats": {
-      "likes": 110,
+      "likes": 114,
       "comments": 8,
-      "shares": 3
+      "shares": 4
     }
   },
   {
@@ -489,9 +489,24 @@
     "city": "",
     "cuisine": "",
     "stats": {
-      "likes": 58,
+      "likes": 60,
       "comments": 11,
-      "shares": 4
+      "shares": 6
+    }
+  },
+  {
+    "videoId": "7659531050351070495",
+    "caption": "What I eat in a day. Part 1: Israel Edition. #israel #mukbang #foodtiktok #review #burger ",
+    "createTime": 1783373558,
+    "thumbnailUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-useast8-p-0068-tx2/oQIWQqKeDyRQkQIjlHmU6ELyifkGfRAIAp9gMC~tplv-tiktokx-origin.image?dr=9636&x-expires=1784016000&x-signature=Q1ZK4Pxy9X0b8NRDmA39FjT%2FJto%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+    "embedUrl": "https://www.tiktok.com/@oneminreviews/video/7659531050351070495",
+    "restaurantSlug": "israel",
+    "city": "",
+    "cuisine": "Burger",
+    "stats": {
+      "likes": 201,
+      "comments": 18,
+      "shares": 7
     }
   }
 ]
