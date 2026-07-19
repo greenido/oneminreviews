@@ -325,7 +325,7 @@
     "cuisine": "",
     "stats": {
       "likes": 104,
-      "comments": 24,
+      "comments": 23,
       "shares": 26
     }
   },
@@ -369,7 +369,7 @@
     "city": "",
     "cuisine": "Burger",
     "stats": {
-      "likes": 930,
+      "likes": 931,
       "comments": 38,
       "shares": 179
     }
@@ -399,7 +399,7 @@
     "city": "",
     "cuisine": "",
     "stats": {
-      "likes": 109,
+      "likes": 110,
       "comments": 23,
       "shares": 18
     }
@@ -429,9 +429,9 @@
     "city": "",
     "cuisine": "Mexican",
     "stats": {
-      "likes": 756,
+      "likes": 757,
       "comments": 15,
-      "shares": 303
+      "shares": 304
     }
   },
   {
@@ -446,7 +446,7 @@
     "stats": {
       "likes": 71,
       "comments": 14,
-      "shares": 10
+      "shares": 11
     }
   },
   {
@@ -474,7 +474,7 @@
     "city": "",
     "cuisine": "",
     "stats": {
-      "likes": 114,
+      "likes": 115,
       "comments": 8,
       "shares": 4
     }
@@ -489,7 +489,7 @@
     "city": "",
     "cuisine": "",
     "stats": {
-      "likes": 60,
+      "likes": 62,
       "comments": 11,
       "shares": 6
     }
@@ -504,7 +504,7 @@
     "city": "",
     "cuisine": "Burger",
     "stats": {
-      "likes": 201,
+      "likes": 206,
       "comments": 18,
       "shares": 7
     }
