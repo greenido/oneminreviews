@@ -280,7 +280,7 @@
     "cuisine": "",
     "stats": {
       "likes": 100,
-      "comments": 19,
+      "comments": 20,
       "shares": 12
     }
   },
@@ -295,7 +295,7 @@
     "cuisine": "",
     "stats": {
       "likes": 1061,
-      "comments": 22,
+      "comments": 23,
       "shares": 16
     }
   },
@@ -504,7 +504,7 @@
     "city": "",
     "cuisine": "Burger",
     "stats": {
-      "likes": 206,
+      "likes": 212,
       "comments": 18,
       "shares": 7
     }
