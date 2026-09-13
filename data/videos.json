@@ -264,7 +264,7 @@
     "city": "",
     "cuisine": "Pizza",
     "stats": {
-      "likes": 134,
+      "likes": 135,
       "comments": 19,
       "shares": 14
     }
@@ -369,7 +369,7 @@
     "city": "",
     "cuisine": "Burger",
     "stats": {
-      "likes": 932,
+      "likes": 933,
       "comments": 38,
       "shares": 179
     }
@@ -506,7 +506,7 @@
     "stats": {
       "likes": 221,
       "comments": 18,
-      "shares": 11
+      "shares": 12
     }
   },
   {
@@ -519,7 +519,7 @@
     "city": "",
     "cuisine": "",
     "stats": {
-      "likes": 83,
+      "likes": 84,
       "comments": 15,
       "shares": 27
     }
@@ -534,9 +534,9 @@
     "city": "",
     "cuisine": "",
     "stats": {
-      "likes": 126,
+      "likes": 128,
       "comments": 8,
-      "shares": 16
+      "shares": 17
     }
   }
 ]
